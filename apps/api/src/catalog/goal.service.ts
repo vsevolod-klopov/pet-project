@@ -86,22 +86,26 @@ export class GoalService {
     });
 
     if (gallery.length) {
-      await this.goalImages.insert(
-        gallery.map((image, index) => ({
-          goalId: goal.id,
-          src: image.src,
-          alt: image.alt ?? null,
-          sortOrder: index,
-        })),
+      await this.goalImages.save(
+        gallery.map((image, index) =>
+          this.goalImages.create({
+            goal: { id: goal.id },
+            src: image.src,
+            alt: image.alt ?? null,
+            sortOrder: index,
+          }),
+        ),
       );
     }
 
     if (description) {
-      await this.descriptionBlocks.insert({
-        goalId: goal.id,
-        text: description,
-        sortOrder: 0,
-      });
+      await this.descriptionBlocks.save(
+        this.descriptionBlocks.create({
+          goal: { id: goal.id },
+          text: description,
+          sortOrder: 0,
+        }),
+      );
     }
 
     return toPublicGoal(await this.loadGoalWithRelations(goal.id));
@@ -134,11 +138,13 @@ export class GoalService {
       const text = input.description.trim();
       await this.descriptionBlocks.delete({ goalId: goal.id });
       if (text) {
-        await this.descriptionBlocks.insert({
-          goalId: goal.id,
-          text,
-          sortOrder: 0,
-        });
+        await this.descriptionBlocks.save(
+          this.descriptionBlocks.create({
+            goal: { id: goal.id },
+            text,
+            sortOrder: 0,
+          }),
+        );
         if (input.short === undefined) {
           goal.short = text.slice(0, 280);
         }
@@ -156,13 +162,15 @@ export class GoalService {
       await this.goalImages.delete({ goalId: goal.id });
 
       if (gallery.length) {
-        await this.goalImages.insert(
-          gallery.map((image, index) => ({
-            goalId: goal.id,
-            src: image.src,
-            alt: image.alt ?? null,
-            sortOrder: index,
-          })),
+        await this.goalImages.save(
+          gallery.map((image, index) =>
+            this.goalImages.create({
+              goal: { id: goal.id },
+              src: image.src,
+              alt: image.alt ?? null,
+              sortOrder: index,
+            }),
+          ),
         );
       }
 
@@ -219,17 +227,17 @@ export class GoalService {
     const image = input.image?.trim() || null;
 
     const stepCount = await this.goalSteps.count({ where: { goalId: goal.id } });
-    const inserted = await this.goalSteps.insert({
-      goalId: goal.id,
-      userId,
-      text: comment.slice(0, 500),
-      status,
-      image,
-      imageAlt: input.imageAlt?.trim()?.slice(0, 255) || comment.slice(0, 255),
-      sortOrder: stepCount,
-    });
-    const stepId = inserted.identifiers[0].id as string;
-    const saved = await this.goalSteps.findOneByOrFail({ id: stepId });
+    const saved = await this.goalSteps.save(
+      this.goalSteps.create({
+        goal: { id: goal.id },
+        userId,
+        text: comment.slice(0, 500),
+        status,
+        image,
+        imageAlt: input.imageAlt?.trim()?.slice(0, 255) || comment.slice(0, 255),
+        sortOrder: stepCount,
+      }),
+    );
 
     goal.status = getGoalStepStatusLabel(status);
     await this.goals.save(goal);
