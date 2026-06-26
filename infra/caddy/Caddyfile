@@ -1,0 +1,5 @@
+# DOMAIN задаётся через переменную окружения в docker-compose (см. .env)
+{$DOMAIN}, www.{$DOMAIN} {
+	reverse_proxy web:80
+	encode gzip
+}
