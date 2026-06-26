@@ -1,0 +1,210 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Мои хотелки · Личный раздел</title>
+    <link rel="stylesheet" href="../assets/css/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell" data-my-wishlist>
+      <header class="app-header">
+        <div class="header-inner">
+          <a href="/index.html" class="logo">
+            <div class="logo-mark">W</div>
+            <div>
+              <div class="logo-text-main">Домашняя карта желаний</div>
+              <div class="logo-text-sub">Общие цели и личные хотелки</div>
+            </div>
+          </a>
+          <nav class="nav" aria-label="Основная навигация">
+            <a class="nav-link" href="/pages/goals.html">Общие цели</a>
+            <a class="nav-link" href="/pages/family.html">Список семьи</a>
+            <a class="nav-link nav-link--primary" href="/pages/my-wishlist.html" aria-current="page"
+              >Мои хотелки</a
+            >
+            <a class="nav-link" href="/pages/auth/login.html">Войти</a>
+          </nav>
+          <button class="menu-toggle" aria-label="Открыть меню">
+            <span></span>
+          </button>
+        </div>
+      </header>
+
+      <div class="mobile-nav-overlay" hidden></div>
+      <aside class="mobile-nav" hidden>
+        <div class="mobile-nav-top">
+          <div class="mobile-nav-title">Меню</div>
+          <button class="mobile-nav-close" type="button" data-mobile-nav-close aria-label="Закрыть">
+            ×
+          </button>
+        </div>
+        <div class="mobile-nav-links" aria-label="Навигация (мобильная)">
+          <a class="mobile-nav-link" href="/index.html">Главная</a>
+          <a class="mobile-nav-link" href="/pages/goals.html">Общие цели</a>
+          <a class="mobile-nav-link" href="/pages/family.html">Список семьи</a>
+          <a class="mobile-nav-link mobile-nav-link--primary" href="/pages/my-wishlist.html">Мои хотелки</a>
+          <a class="mobile-nav-link" href="/pages/auth/login.html">Войти</a>
+        </div>
+        <div class="mobile-nav-hint">Здесь только ваши личные хотелки.</div>
+      </aside>
+
+      <main class="app-main">
+        <section class="page">
+          <header class="page-header">
+            <div class="page-title-group">
+              <div class="page-eyebrow">Личный раздел</div>
+              <h1 class="page-title">Мои хотелки</h1>
+              <p class="page-subtitle">
+                Здесь вы можете добавлять, редактировать и просматривать свои личные хотелки — отдельно
+                от списков семьи.
+              </p>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn--primary" type="button" data-open-modal="my-wish">
+                Добавить хотелку
+              </button>
+            </div>
+          </header>
+
+          <section class="stack-lg" aria-label="Личный список хотелок">
+            <p class="section-caption" data-my-wishlist-empty>
+              Добавьте первую хотелку, чтобы собрать личный список.
+            </p>
+            <div class="grid grid--wish-tiles" data-my-wishlist-grid></div>
+          </section>
+        </section>
+      </main>
+
+      <!-- Модальное окно добавления/редактирования личной хотелки -->
+      <div class="modal-backdrop" data-modal-backdrop="my-wish" hidden>
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="my-wish-modal-title">
+          <div class="modal-header">
+            <div>
+              <div class="page-eyebrow">Личная хотелка</div>
+              <h2 class="modal-title" id="my-wish-modal-title" data-my-wish-modal-title>
+                Добавить хотелку
+              </h2>
+            </div>
+            <button
+              class="modal-close"
+              type="button"
+              data-close-modal="my-wish"
+              aria-label="Закрыть форму хотелки"
+            >
+              ×
+            </button>
+          </div>
+          <form class="form-grid" data-my-wish-form>
+            <input type="hidden" name="id" />
+            <input type="hidden" name="image" />
+            <div class="form-field">
+              <label class="form-label form-label--required" for="my-wish-title">Название</label>
+              <input
+                class="form-input"
+                id="my-wish-title"
+                name="title"
+                type="text"
+                required
+                placeholder="Например, беспроводные наушники"
+              />
+            </div>
+            <div class="form-field">
+              <label class="form-label" for="my-wish-link"
+                >Ссылка <span>(магазин, страница товара и т.п.)</span></label
+              >
+              <input
+                class="form-input"
+                id="my-wish-link"
+                name="link"
+                type="url"
+                placeholder="https://..."
+              />
+            </div>
+            <div class="form-row-inline">
+              <div class="form-field">
+                <label class="form-label" for="my-wish-category">Категория</label>
+                <input
+                  class="form-input"
+                  id="my-wish-category"
+                  name="category"
+                  type="text"
+                  placeholder="Техника, книги, дом и т.п."
+                />
+              </div>
+              <div class="form-field">
+                <label class="form-label" for="my-wish-budget">Цена</label>
+                <div class="price-input-wrap">
+                  <input
+                    class="form-input price-input"
+                    id="my-wish-budget"
+                    name="budget"
+                    type="text"
+                    inputmode="numeric"
+                    data-price-input
+                    placeholder="40,000"
+                    autocomplete="off"
+                  />
+                  <span class="price-input-suffix" aria-hidden="true">₽</span>
+                </div>
+              </div>
+            </div>
+            <div class="form-field">
+              <label class="form-label" for="my-wish-visibility">Кто видит хотелку</label>
+              <select class="form-select" id="my-wish-visibility" name="visibility">
+                <option value="family" selected>Видна семье</option>
+                <option value="private">Только я</option>
+              </select>
+              <p class="form-helper">«Видна семье» — появится в списке хотелок на странице члена семьи.</p>
+            </div>
+            <div class="form-field">
+              <label class="form-label form-label--required">Картинка</label>
+              <label class="file-picker">
+                <input
+                  class="file-picker-input"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  data-my-wish-image-file
+                />
+                <span class="file-picker-face">
+                  <span class="file-picker-icon" aria-hidden="true">↑</span>
+                  <span class="file-picker-text" data-file-picker-text>Выбрать изображение</span>
+                </span>
+              </label>
+              <p class="form-helper">JPEG, PNG, WebP или GIF, до 5 МБ. При редактировании можно оставить текущее фото.</p>
+              <div class="image-preview" data-my-wish-image-preview hidden></div>
+            </div>
+            <div class="form-field">
+              <label class="form-label" for="my-wish-description">Комментарий</label>
+              <textarea
+                class="form-textarea"
+                id="my-wish-description"
+                name="description"
+                placeholder="Зачем это нужно, когда пригодится и т.п."
+              ></textarea>
+            </div>
+            <p class="form-field-error" data-my-wish-form-error hidden></p>
+            <div class="form-actions">
+              <button class="btn btn--ghost" type="button" data-close-modal="my-wish">Отмена</button>
+              <button class="btn btn--primary" type="submit">
+                Сохранить
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <footer class="app-footer">
+        Домашняя карта желаний · Общие цели и личные хотелки
+      </footer>
+    </div>
+
+    <script src="/assets/js/config.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/format.js"></script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/data.js"></script>
+    <script src="/assets/js/app.js"></script>
+  </body>
+</html>
+

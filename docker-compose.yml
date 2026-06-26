@@ -1,0 +1,71 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: pet-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-pet}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pet}
+      POSTGRES_DB: ${POSTGRES_DB:-pet_db}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./apps/api/src/migrations/001_initial_schema.sql:/docker-entrypoint-initdb.d/001_initial_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pet} -d ${POSTGRES_DB:-pet_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - pet-network
+
+  api:
+    build:
+      context: ./apps/api
+      target: production
+    container_name: pet-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: 3000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-pet}:${POSTGRES_PASSWORD:-pet}@db:5432/${POSTGRES_DB:-pet_db}
+      DB_HOST: db
+      DB_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER:-pet}
+      POSTGRES_DB: ${POSTGRES_DB:-pet_db}
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-change-me-too-in-production}
+      UPLOAD_DIR: /app/uploads
+    ports:
+      - "${API_PORT:-3000}:3000"
+    volumes:
+      - uploads_data:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - pet-network
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    container_name: pet-web
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    depends_on:
+      - api
+    networks:
+      - pet-network
+
+networks:
+  pet-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  uploads_data:

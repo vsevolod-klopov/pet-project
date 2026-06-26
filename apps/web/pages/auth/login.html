@@ -1,0 +1,183 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Вход · Домашняя карта желаний</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <div class="header-inner">
+          <a href="/index.html" class="logo">
+            <div class="logo-mark">W</div>
+            <div>
+              <div class="logo-text-main">Домашняя карта желаний</div>
+              <div class="logo-text-sub">Общие цели и личные хотелки</div>
+            </div>
+          </a>
+          <!--<button class="menu-toggle" aria-label="Открыть меню"> -->
+            <span></span>
+          </button>
+        </div>
+      </header>
+
+      <div class="mobile-nav-overlay" hidden></div>
+      <!--<aside class="mobile-nav" hidden>
+        <div class="mobile-nav-top">
+          <div class="mobile-nav-title">Меню</div>
+          <button class="mobile-nav-close" type="button" data-mobile-nav-close aria-label="Закрыть">
+            ×
+          </button>
+        </div>
+        <div class="mobile-nav-links" aria-label="Навигация (мобильная)">
+          <a class="mobile-nav-link" href="/index.html">Главная</a>
+          <a class="mobile-nav-link" href="/pages/goals.html">Общие цели</a>
+          <a class="mobile-nav-link" href="/pages/family.html">Список семьи</a>
+          <a class="mobile-nav-link" href="/pages/my-wishlist.html">Мои хотелки</a>
+          <a class="mobile-nav-link mobile-nav-link--primary" href="/pages/auth/login.html">Войти</a>
+        </div>
+        <div class="mobile-nav-hint">Авторизуйтесь, чтобы синхронизировать данные в будущем.</div>
+      </aside> -->
+      <main class="app-main">
+        <section class="page">
+          <header class="page-header">
+            <div class="page-title-group">
+              <div class="page-eyebrow">Вход</div>
+              <h1 class="page-title">Войти в домашнюю карту желаний</h1>
+              <p class="page-subtitle">
+                Введите ваш email и пароль для входа в систему
+              </p>
+            </div>
+          </header>
+
+          <section class="stack-lg" aria-label="Форма входа">
+            <div class="form-card">
+              <form class="form-grid" id="login-form">
+                <div class="form-field">
+                  <label class="form-label" for="login-email">E-mail</label>
+                  <input
+                    class="form-input"
+                    id="login-email"
+                    type="email"
+                    name="email"
+                    autocomplete="email"
+                    required
+                    placeholder="you@example.com"
+                  />
+                </div>
+                <div class="form-field">
+                  <label class="form-label" for="login-password">Пароль</label>
+                  <input
+                    class="form-input"
+                    id="login-password"
+                    type="password"
+                    name="password"
+                    autocomplete="current-password"
+                    required
+                    placeholder="••••••••"
+                  />
+                </div>
+                <div id="login-error" class="form-error" style="display: none;"></div>
+                <div class="form-actions">
+                  <a href="/pages/auth/register.html" class="btn btn--ghost">Регистрация</a>
+                  <button class="btn btn--primary" type="submit" id="login-submit-btn">
+                    Войти
+                  </button>
+                </div>
+              </form>
+            </div>
+          </section>
+        </section>
+      </main>
+
+      <footer class="app-footer">
+        Домашняя карта желаний · Общие цели и личные хотелки
+      </footer>
+    </div>
+
+    <script src="/assets/js/config.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/data.js"></script>
+    <script src="/assets/js/app.js"></script>
+    <script>
+      // Login form handler
+      document.getElementById('login-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+        const errorDiv = document.getElementById('login-error');
+        const submitBtn = document.getElementById('login-submit-btn');
+        
+        // Reset error message
+        errorDiv.style.display = 'none';
+        errorDiv.textContent = '';
+        
+        // Disable submit button
+        submitBtn.disabled = true;
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Загрузка...';
+        
+        try {
+          // Validate inputs
+          if (!email || !password) {
+            throw new Error('Пожалуйста, заполните все поля');
+          }
+          
+          if (password.length < 6) {
+            throw new Error('Пароль должен быть не менее 6 символов');
+          }
+          
+          // Attempt login
+          const result = await login(email, password);
+          
+          // Show success and redirect
+          errorDiv.style.display = 'block';
+          errorDiv.style.color = 'green';
+          errorDiv.textContent = '✓ Вход успешен! Перенаправление...';
+          
+          setTimeout(() => {
+            const params = new URLSearchParams(window.location.search);
+            const returnPath = params.get('return');
+            const safeReturn =
+              returnPath && returnPath.startsWith('/') && !returnPath.startsWith('//')
+                ? decodeURIComponent(returnPath)
+                : APP_ROUTES.goals;
+            window.location.href = safeReturn;
+          }, 1500);
+          
+        } catch (error) {
+          console.error('Login error:', error);
+          
+          let errorMessage = 'Ошибка входа';
+          
+          if (error.message) {
+            errorMessage = error.message;
+          } else if (error.status === 401) {
+            errorMessage = 'Неверный email или пароль';
+          } else if (error.status === 404) {
+            errorMessage = 'Пользователь не найден';
+          } else if (error.status >= 500) {
+            errorMessage = 'Ошибка сервера. Попробуйте позже';
+          } else if (error.message === 'Failed to fetch') {
+            errorMessage = 'Не удалось подключиться к серверу. Убедитесь, что API запущен (' + API_CONFIG.baseURL + ')';
+          }
+          
+          errorDiv.style.display = 'block';
+          errorDiv.style.color = 'red';
+          errorDiv.textContent = '✗ ' + errorMessage;
+          
+          // Re-enable submit button
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
+        }
+      });
+      
+      redirectIfAuthenticated(APP_ROUTES.goals);
+    </script>
+  </body>
+</html>
+

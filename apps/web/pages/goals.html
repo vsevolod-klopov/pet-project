@@ -1,0 +1,194 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Общие цели семьи · Домашняя карта желаний</title>
+    <link rel="stylesheet" href="../assets/css/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell" data-goals-page>
+      <header class="app-header">
+        <div class="header-inner">
+          <a href="/index.html" class="logo">
+            <div class="logo-mark">W</div>
+            <div>
+              <div class="logo-text-main">Домашняя карта желаний</div>
+              <div class="logo-text-sub">Общие цели и личные хотелки</div>
+            </div>
+          </a>
+          <nav class="nav" aria-label="Основная навигация">
+            <a class="nav-link nav-link--primary" href="/pages/goals.html" aria-current="page">Общие цели</a>
+            <a class="nav-link" href="/pages/family.html">Список семьи</a>
+            <a class="nav-link" href="/pages/my-wishlist.html">Мои хотелки</a>
+            <a class="nav-link" href="/pages/auth/login.html">Войти</a>
+          </nav>
+          <button class="menu-toggle" aria-label="Открыть меню">
+            <span></span>
+          </button>
+        </div>
+      </header>
+
+      <div class="mobile-nav-overlay" hidden></div>
+      <aside class="mobile-nav" hidden>
+        <div class="mobile-nav-top">
+          <div class="mobile-nav-title">Меню</div>
+          <button class="mobile-nav-close" type="button" data-mobile-nav-close aria-label="Закрыть">
+            ×
+          </button>
+        </div>
+        <div class="mobile-nav-links" aria-label="Навигация (мобильная)">
+          <a class="mobile-nav-link" href="/index.html">Главная</a>
+          <a class="mobile-nav-link mobile-nav-link--primary" href="/pages/goals.html">Общие цели</a>
+          <a class="mobile-nav-link" href="/pages/family.html">Список семьи</a>
+          <a class="mobile-nav-link" href="/pages/my-wishlist.html">Мои хотелки</a>
+          <a class="mobile-nav-link" href="/pages/auth/login.html">Войти</a>
+        </div>
+        <div class="mobile-nav-hint">Открывай цель, чтобы смотреть детали и коллаж.</div>
+      </aside>
+
+      <main class="app-main">
+        <section class="page">
+          <header class="page-header">
+            <div class="page-title-group">
+              <div class="page-eyebrow">Семейные планы</div>
+              <h1 class="page-title">Общие цели семьи</h1>
+              <p class="page-subtitle">
+                Список крупных совместных целей: путешествия, ремонт, переезд, крупные покупки.
+                Каждый пункт — отдельная карточка с картинкой и коротким описанием.
+              </p>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn--primary" type="button" data-open-modal="goal">
+                Добавить цель
+              </button>
+              <a href="/pages/family.html" class="btn btn--ghost">Перейти к спискам хотелок</a>
+            </div>
+          </header>
+
+          <section class="stack-lg" aria-labelledby="goals-list-title">
+            <div class="stack-sm">
+              <h2 id="goals-list-title" class="section-title">Список общих целей</h2>
+              <p class="section-caption">
+                Нажмите на карточку, чтобы открыть цель с каруселью фото. Семья может добавлять и редактировать цели.
+              </p>
+            </div>
+
+            <div class="grid grid--cards-3" data-goals-grid></div>
+          </section>
+
+          <!-- Модальное окно добавления цели -->
+          <div class="modal-backdrop" data-modal-backdrop="goal" hidden>
+            <div class="modal" role="dialog" aria-modal="true" aria-labelledby="goal-modal-title">
+              <div class="modal-header">
+                <div>
+                  <div class="page-eyebrow">Новая цель</div>
+                  <h2 class="modal-title" id="goal-modal-title">Добавить общую цель</h2>
+                </div>
+                <button
+                  class="modal-close"
+                  type="button"
+                  data-close-modal="goal"
+                  aria-label="Закрыть форму добавления цели"
+                >
+                  ×
+                </button>
+              </div>
+              <form class="form-grid" data-goal-form>
+                <input type="hidden" name="id" />
+                <div class="form-field">
+                  <label class="form-label" for="goal-title"
+                    >Название цели <span>(кратко)</span></label
+                  >
+                  <input
+                    class="form-input"
+                    id="goal-title"
+                    name="title"
+                    type="text"
+                    required
+                    placeholder="Например, большое путешествие в Италию"
+                  />
+                </div>
+
+                <div class="form-row-inline">
+                  <div class="form-field">
+                    <label class="form-label" for="goal-horizon"
+                      >Горизонт <span>(когда примерно)</span></label
+                    >
+                    <input
+                      class="form-input"
+                      id="goal-horizon"
+                      name="horizon"
+                      type="text"
+                      placeholder="1–2 года, до конца лета и т.п."
+                    />
+                  </div>
+                  <div class="form-field">
+                    <label class="form-label" for="goal-category">Категория</label>
+                    <select class="form-select" id="goal-category" name="category">
+                      <option value="Путешествия">Путешествия</option>
+                      <option value="Дом и ремонт">Дом и ремонт</option>
+                      <option value="Финансы">Финансы</option>
+                      <option value="Образование">Образование</option>
+                      <option value="Другое">Другое</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label form-label--required">Фотографии цели</label>
+                  <label class="file-picker file-picker--multi">
+                    <input
+                      class="file-picker-input"
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      multiple
+                      data-goal-images-file
+                    />
+                    <span class="file-picker-face">
+                      <span class="file-picker-icon" aria-hidden="true">+</span>
+                      <span class="file-picker-text" data-file-picker-text>Добавить фото</span>
+                    </span>
+                  </label>
+                  <p class="form-helper">Можно выбрать несколько файлов. JPEG, PNG, WebP или GIF, до 5 МБ каждый.</p>
+                  <div class="file-preview-grid" data-goal-images-preview hidden></div>
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label" for="goal-description"
+                    >Полное описание и ощущения</label
+                  >
+                  <textarea
+                    class="form-textarea"
+                    id="goal-description"
+                    name="description"
+                    placeholder="Опишите, что для вас значит эта цель, как вы хотите себя чувствовать, когда она исполнится."
+                  ></textarea>
+                </div>
+
+                <p class="form-field-error" data-goal-form-error hidden></p>
+                <div class="form-actions">
+                  <button class="btn btn--ghost" type="button" data-close-modal="goal">Отмена</button>
+                  <button class="btn btn--primary" type="submit">
+                    Сохранить в списке
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="app-footer">
+        Домашняя карта желаний · Общие цели и личные хотелки
+      </footer>
+    </div>
+
+    <script src="/assets/js/config.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/data.js"></script>
+    <script src="/assets/js/app.js"></script>
+  </body>
+</html>
+

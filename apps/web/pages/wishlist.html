@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Хотелки · Личный список</title>
+    <link rel="stylesheet" href="../assets/css/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell" data-wishlist>
+      <header class="app-header">
+        <div class="header-inner">
+          <a href="/index.html" class="logo">
+            <div class="logo-mark">W</div>
+            <div>
+              <div class="logo-text-main">Домашняя карта желаний</div>
+              <div class="logo-text-sub">Общие цели и личные хотелки</div>
+            </div>
+          </a>
+          <nav class="nav" aria-label="Основная навигация">
+            <a class="nav-link" href="/pages/goals.html">Общие цели</a>
+            <a class="nav-link nav-link--primary" href="/pages/family.html">Список семьи</a>
+            <a class="nav-link" href="/pages/my-wishlist.html">Мои хотелки</a>
+            <a class="nav-link" href="/pages/auth/login.html">Войти</a>
+          </nav>
+          <button class="menu-toggle" aria-label="Открыть меню">
+            <span></span>
+          </button>
+        </div>
+      </header>
+
+      <div class="mobile-nav-overlay" hidden></div>
+      <aside class="mobile-nav" hidden>
+        <div class="mobile-nav-top">
+          <div class="mobile-nav-title">Меню</div>
+          <button class="mobile-nav-close" type="button" data-mobile-nav-close aria-label="Закрыть">
+            ×
+          </button>
+        </div>
+        <div class="mobile-nav-links" aria-label="Навигация (мобильная)">
+          <a class="mobile-nav-link" href="/index.html">Главная</a>
+          <a class="mobile-nav-link mobile-nav-link--primary" href="/pages/goals.html">Общие цели</a>
+          <a class="mobile-nav-link" href="/pages/family.html">Список семьи</a>
+          <a class="mobile-nav-link" href="/pages/my-wishlist.html">Мои хотелки</a>
+          <a class="mobile-nav-link" href="/pages/auth/login.html">Войти</a>
+        </div>
+        <div class="mobile-nav-hint">
+          Подсказка: на экране хотелок можно выбирать человека через параметр <span class="pill-stat">?id=...</span>.
+        </div>
+      </aside>
+
+      <main class="app-main">
+        <section class="page">
+          <header class="page-header">
+            <div class="page-title-group">
+              <div class="page-eyebrow">Личный список</div>
+              <h1 class="page-title" data-wishlist-title>Хотелки</h1>
+              <p class="page-subtitle" data-wishlist-subtitle>
+                Карточки с картинкой, описанием и ссылкой.
+              </p>
+            </div>
+            <div class="page-actions">
+              <a href="/pages/family.html" class="btn btn--ghost">← Вернуться к списку семьи</a>
+            </div>
+          </header>
+
+          <section class="stack-lg" aria-label="Список хотелок">
+            <div class="grid grid--wish-tiles" data-wishlist-grid></div>
+          </section>
+        </section>
+      </main>
+
+      <footer class="app-footer">Домашняя карта желаний · Общие цели и личные хотелки</footer>
+    </div>
+
+    <script src="/assets/js/config.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/format.js"></script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/data.js"></script>
+    <script src="/assets/js/app.js"></script>
+  </body>
+</html>
+

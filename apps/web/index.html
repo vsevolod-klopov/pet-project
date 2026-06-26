@@ -1,0 +1,161 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Домашняя карта желаний</title>
+    <link rel="stylesheet" href="assets/css/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <div class="header-inner">
+          <a href="/index.html" class="logo">
+            <div class="logo-mark">W</div>
+            <div>
+              <div class="logo-text-main">Домашняя карта желаний</div>
+              <div class="logo-text-sub">Общие цели и личные хотелки</div>
+            </div>
+          </a>
+          <nav class="nav" aria-label="Основная навигация">
+            <a class="nav-link nav-link--primary" href="/pages/goals.html">Общие цели</a>
+            <a class="nav-link" href="/pages/family.html">Список семьи</a>
+            <a class="nav-link" href="/pages/my-wishlist.html">Мои хотелки</a>
+            <a class="nav-link" href="/pages/auth/login.html">Войти</a>
+          </nav>
+          <button class="menu-toggle" aria-label="Открыть меню">
+            <span></span>
+          </button>
+        </div>
+      </header>
+
+      <div class="mobile-nav-overlay" hidden></div>
+      <aside class="mobile-nav" hidden>
+        <div class="mobile-nav-top">
+          <div class="mobile-nav-title">Меню</div>
+          <button class="mobile-nav-close" type="button" data-mobile-nav-close aria-label="Закрыть">
+            ×
+          </button>
+        </div>
+        <div class="mobile-nav-links" aria-label="Навигация (мобильная)">
+          <a class="mobile-nav-link mobile-nav-link--primary" href="/index.html">Главная</a>
+          <a class="mobile-nav-link" href="/pages/goals.html">Общие цели</a>
+          <a class="mobile-nav-link" href="/pages/family.html">Список семьи</a>
+          <a class="mobile-nav-link" href="/pages/my-wishlist.html">Мои хотелки</a>
+          <a class="mobile-nav-link" href="/pages/auth/login.html">Войти</a>
+        </div>
+        <div class="mobile-nav-hint">Общие цели и личные хотелки в одном месте.</div>
+      </aside>
+
+      <main class="app-main">
+        <section class="page">
+          <header class="page-header">
+            <div class="page-title-group">
+              <div class="page-eyebrow">Домашнее пространство мечтаний</div>
+              <h1 class="page-title">Место, где живут ваши общие цели и личные хотелки</h1>
+              <p class="page-subtitle">
+                Соберите ваши мечты в одном спокойном пространстве: большие семейные цели, личные
+                списки желаний и вдохновляющие картинки.
+              </p>
+            </div>
+            <div class="page-actions">
+              <a href="/pages/goals.html" class="btn btn--primary">
+                К общим целям
+              </a>
+              <a href="/pages/family.html" class="btn btn--ghost">Смотреть хотелки семьи</a>
+            </div>
+          </header>
+
+          <section class="stack-lg" aria-labelledby="overview-goals">
+            <div>
+              <h2 id="overview-goals" class="section-title">Как устроено приложение</h2>
+            </div>
+
+            <div class="grid grid--cards-3">
+              <article class="card">
+                <div class="card-media">
+                  <img src="https://images.pexels.com/photos/5876694/pexels-photo-5876694.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Коллаж семейных планов на стене" />
+                  <div class="card-media-tag">
+                    <span class="chip">
+                      Общие цели
+                    </span>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="card-title-row">
+                    <h3 class="card-title">Экран общих целей</h3>
+                    <span class="badge">
+                      <span class="badge-dot"></span>
+                      Вид карточек
+                    </span>
+                  </div>
+                  <p class="card-text">
+                    Список крупных планов семьи: путешествия, ремонт, крупные покупки — каждый в
+                    виде аккуратной карточки с картинкой и описанием.
+                  </p>
+                  <div class="card-footer">
+                    <span class="small-muted">Добавление новых целей</span>
+                  </div>
+                </div>
+              </article>
+
+              <article class="card">
+                <div class="card-media">
+                  <img src="https://images.pexels.com/photos/3951628/pexels-photo-3951628.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Семья, просматривающая планшет" />
+                  <div class="card-media-tag">
+                    <span class="chip chip--accent">Личные хотелки</span>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="card-title-row">
+                    <h3 class="card-title">Списки желаний семьи</h3>
+                  </div>
+                  <p class="card-text">
+                    У каждого своя страница с хотелками: ссылка на товар, картинка и короткий
+                    комментарий — удобно для подарков и планов.
+                  </p>
+                  <div class="card-footer">
+                    <span class="small-muted">Один Экран — все списки</span>
+                  </div>
+                </div>
+              </article>
+
+              <article class="card">
+                <div class="card-media">
+                  <img src="https://images.pexels.com/photos/358574/pexels-photo-358574.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Телефон с минималистичным интерфейсом" />
+                  <div class="card-media-tag">
+                    <span class="chip">
+                      Адаптивный макет
+                    </span>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="card-title-row">
+                    <h3 class="card-title">Удобно на телефоне</h3>
+                  </div>
+                  <p class="card-text">
+                    Интерфейс уже адаптирован под мобильные экраны и планшеты — удобные отступы,
+                    крупные карточки, спокойные цвета с мягкими акцентами.
+                  </p>
+                  <div class="card-footer">
+                  </div>
+                </div>
+              </article>
+            </div>
+          </section>
+        </section>
+      </main>
+
+      <footer class="app-footer">
+        Домашняя карта желаний · Общие цели и личные хотелки
+      </footer>
+    </div>
+
+    <script src="/assets/js/config.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/data.js"></script>
+    <script src="/assets/js/app.js"></script>
+  </body>
+</html>
+

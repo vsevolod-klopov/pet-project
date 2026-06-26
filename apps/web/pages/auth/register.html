@@ -1,0 +1,509 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Регистрация · Домашняя карта желаний</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <div class="header-inner">
+          <a href="/index.html" class="logo">
+            <div class="logo-mark">W</div>
+            <div>
+              <div class="logo-text-main">Домашняя карта желаний</div>
+              <div class="logo-text-sub">Общие цели и личные хотелки</div>
+            </div>
+          </a>
+          <nav class="nav" aria-label="Основная навигация">
+            <a class="nav-link" href="/pages/goals.html">Общие цели</a>
+            <a class="nav-link" href="/pages/family.html">Список семьи</a>
+            <a class="nav-link" href="/pages/my-wishlist.html">Мои хотелки</a>
+            <a class="nav-link nav-link--primary" href="/pages/auth/register.html" aria-current="page"
+              >Регистрация</a
+            >
+          </nav>
+          <button class="menu-toggle" aria-label="Открыть меню">
+            <span></span>
+          </button>
+        </div>
+      </header>
+
+      <div class="mobile-nav-overlay" hidden></div>
+      <aside class="mobile-nav" hidden>
+        <div class="mobile-nav-top">
+          <div class="mobile-nav-title">Меню</div>
+          <button class="mobile-nav-close" type="button" data-mobile-nav-close aria-label="Закрыть">
+            ×
+          </button>
+        </div>
+        <div class="mobile-nav-links" aria-label="Навигация (мобильная)">
+          <a class="mobile-nav-link" href="/index.html">Главная</a>
+          <a class="mobile-nav-link" href="/pages/goals.html">Общие цели</a>
+          <a class="mobile-nav-link" href="/pages/family.html">Список семьи</a>
+          <a class="mobile-nav-link" href="/pages/my-wishlist.html">Мои хотелки</a>
+          <a class="mobile-nav-link mobile-nav-link--primary" href="/pages/auth/register.html">Регистрация</a>
+        </div>
+        <div class="mobile-nav-hint">Создайте учётную запись для синхронизации в будущем.</div>
+      </aside>
+
+      <main class="app-main">
+        <section class="page">
+          <header class="page-header">
+            <div class="page-title-group">
+              <div class="page-eyebrow">Регистрация</div>
+              <h1 class="page-title">Создать аккаунт для карты желаний</h1>
+              <p class="page-subtitle">
+                Заполните форму для создания нового аккаунта
+              </p>
+            </div>
+          </header>
+
+          <section class="stack-lg" aria-label="Форма регистрации">
+            <div class="form-card">
+              <form class="form-grid" id="register-form" novalidate>
+                <div class="form-field" data-field="name">
+                  <label class="form-label form-label--required" for="reg-name">Имя</label>
+                  <input
+                    class="form-input"
+                    id="reg-name"
+                    type="text"
+                    name="name"
+                    required
+                    autocomplete="name"
+                    placeholder="Как к вам обращаться"
+                  />
+                  <p class="form-field-error" data-field-error="name" aria-live="polite"></p>
+                </div>
+                <div class="form-field" data-field="email">
+                  <label class="form-label form-label--required" for="reg-email">E-mail</label>
+                  <input
+                    class="form-input"
+                    id="reg-email"
+                    type="email"
+                    name="email"
+                    autocomplete="email"
+                    required
+                    placeholder="you@example.com"
+                  />
+                  <p class="form-field-error" data-field-error="email" aria-live="polite"></p>
+                </div>
+
+                <div class="family-setup" data-field="familyMode">
+                  <span class="form-label form-label--required">Семья</span>
+                  <div class="choice-group" id="family-choice-group" role="radiogroup" aria-label="Выбор семьи">
+                    <label class="choice-card">
+                      <input
+                        type="radio"
+                        name="familyMode"
+                        value="create"
+                        id="family-mode-create"
+                        checked
+                        required
+                      />
+                      <span class="choice-card-body">
+                        <div class="choice-card-title">Создать свою семью</div>
+                        <div class="choice-card-text">
+                          Вы станете владельцем и получите код для приглашения близких.
+                        </div>
+                      </span>
+                    </label>
+                    <label class="choice-card">
+                      <input
+                        type="radio"
+                        name="familyMode"
+                        value="join"
+                        id="family-mode-join"
+                        required
+                      />
+                      <span class="choice-card-body">
+                        <div class="choice-card-title">Присоединиться к семье</div>
+                        <div class="choice-card-text">
+                          Введите 6-значный код приглашения от владельца семьи.
+                        </div>
+                      </span>
+                    </label>
+                  </div>
+                  <p class="form-field-error" data-field-error="familyMode" aria-live="polite"></p>
+
+                  <div class="family-panel" id="create-family-panel">
+                    <div class="form-field" data-field="familyName">
+                      <label class="form-label form-label--required" for="reg-family-name">Название семьи</label>
+                      <input
+                        class="form-input"
+                        id="reg-family-name"
+                        type="text"
+                        name="familyName"
+                        required
+                        placeholder="Например: Семья Ивановых"
+                      />
+                      <p class="form-field-error" data-field-error="familyName" aria-live="polite"></p>
+                    </div>
+                  </div>
+
+                  <div class="family-panel" id="join-family-panel" hidden>
+                    <div class="form-field" data-field="inviteCode">
+                      <label class="form-label form-label--required" for="reg-invite-code">Код приглашения</label>
+                      <input
+                        class="form-input form-input--code"
+                        id="reg-invite-code"
+                        type="text"
+                        name="inviteCode"
+                        inputmode="numeric"
+                        pattern="[0-9]{5,6}"
+                        maxlength="6"
+                        placeholder="123456"
+                        autocomplete="one-time-code"
+                      />
+                      <p class="form-helper">
+                        Код из 5–6 цифр. Можно перейти по ссылке с параметром
+                        <code>?invite=123456</code>.
+                      </p>
+                      <p class="form-field-error" data-field-error="inviteCode" aria-live="polite"></p>
+                    </div>
+                    <div id="invite-hint" class="invite-hint" hidden></div>
+                  </div>
+                </div>
+
+                <div class="form-row-inline">
+                  <div class="form-field" data-field="password">
+                    <label class="form-label form-label--required" for="reg-password">Пароль</label>
+                    <input
+                      class="form-input"
+                      id="reg-password"
+                      type="password"
+                      name="password"
+                      autocomplete="new-password"
+                      required
+                      minlength="6"
+                      placeholder="Минимум 6 символов"
+                    />
+                    <p class="form-field-error" data-field-error="password" aria-live="polite"></p>
+                  </div>
+                  <div class="form-field" data-field="password2">
+                    <label class="form-label form-label--required" for="reg-password2">Повторите пароль</label>
+                    <input
+                      class="form-input"
+                      id="reg-password2"
+                      type="password"
+                      name="password2"
+                      autocomplete="new-password"
+                      required
+                      minlength="6"
+                      placeholder="Ещё раз пароль"
+                    />
+                    <p class="form-field-error" data-field-error="password2" aria-live="polite"></p>
+                  </div>
+                </div>
+                <div id="register-error" class="form-error" hidden></div>
+                <div class="form-actions">
+                  <a href="/pages/auth/login.html" class="btn btn--ghost">Уже есть аккаунт</a>
+                  <button class="btn btn--primary" type="submit" id="register-submit-btn">
+                    Зарегистрироваться
+                  </button>
+                </div>
+              </form>
+            </div>
+          </section>
+        </section>
+      </main>
+
+      <footer class="app-footer">
+        Домашняя карта желаний · Общие цели и личные хотелки
+      </footer>
+    </div>
+
+    <script src="/assets/js/config.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/data.js"></script>
+    <script src="/assets/js/app.js"></script>
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const inviteFromUrl = params.get(INVITE_QUERY_KEY) || params.get('code');
+      const form = document.getElementById('register-form');
+      const createPanel = document.getElementById('create-family-panel');
+      const joinPanel = document.getElementById('join-family-panel');
+      const createRadio = document.getElementById('family-mode-create');
+      const joinRadio = document.getElementById('family-mode-join');
+      const choiceGroup = document.getElementById('family-choice-group');
+      const familyNameInput = document.getElementById('reg-family-name');
+      const inviteInput = document.getElementById('reg-invite-code');
+      const inviteHint = document.getElementById('invite-hint');
+      const errorDiv = document.getElementById('register-error');
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      const fieldRefs = {
+        name: document.getElementById('reg-name'),
+        email: document.getElementById('reg-email'),
+        familyName: familyNameInput,
+        inviteCode: inviteInput,
+        password: document.getElementById('reg-password'),
+        password2: document.getElementById('reg-password2'),
+      };
+
+      function setFamilyMode(mode) {
+        const isJoin = mode === 'join';
+        createPanel.hidden = isJoin;
+        joinPanel.hidden = !isJoin;
+        familyNameInput.required = !isJoin;
+        inviteInput.required = isJoin;
+        clearFieldError('familyName');
+        clearFieldError('inviteCode');
+      }
+
+      function clearFieldError(fieldName) {
+        const wrapper = document.querySelector(`[data-field="${fieldName}"]`);
+        const errorEl = document.querySelector(`[data-field-error="${fieldName}"]`);
+        const input = fieldRefs[fieldName];
+
+        if (wrapper) {
+          wrapper.classList.remove('form-field--invalid');
+        }
+        if (errorEl) {
+          errorEl.textContent = '';
+        }
+        if (input) {
+          input.classList.remove('form-input--invalid');
+          input.removeAttribute('aria-invalid');
+        }
+        if (fieldName === 'familyMode' && choiceGroup) {
+          choiceGroup.classList.remove('choice-group--invalid');
+        }
+      }
+
+      function setFieldError(fieldName, message) {
+        const wrapper = document.querySelector(`[data-field="${fieldName}"]`);
+        const errorEl = document.querySelector(`[data-field-error="${fieldName}"]`);
+        const input = fieldRefs[fieldName];
+
+        if (wrapper) {
+          wrapper.classList.add('form-field--invalid');
+        }
+        if (errorEl) {
+          errorEl.textContent = message;
+        }
+        if (input) {
+          input.classList.add('form-input--invalid');
+          input.setAttribute('aria-invalid', 'true');
+        }
+        if (fieldName === 'familyMode' && choiceGroup) {
+          choiceGroup.classList.add('choice-group--invalid');
+        }
+      }
+
+      function clearAllFieldErrors() {
+        ['name', 'email', 'familyMode', 'familyName', 'inviteCode', 'password', 'password2'].forEach(clearFieldError);
+      }
+
+      function hideFormError() {
+        errorDiv.hidden = true;
+        errorDiv.textContent = '';
+        errorDiv.classList.remove('form-error--success');
+      }
+
+      function showFormError(message, isSuccess = false) {
+        errorDiv.hidden = false;
+        errorDiv.textContent = message;
+        errorDiv.classList.toggle('form-error--success', isSuccess);
+      }
+
+      function validateRegisterForm() {
+        clearAllFieldErrors();
+        hideFormError();
+
+        const name = fieldRefs.name.value.trim();
+        const email = fieldRefs.email.value.trim();
+        const password = fieldRefs.password.value;
+        const password2 = fieldRefs.password2.value;
+        const familyMode = document.querySelector('input[name="familyMode"]:checked')?.value;
+        const familyName = familyNameInput.value.trim();
+        const inviteCode = inviteInput.value.replace(/\D/g, '');
+
+        const errors = [];
+        let firstInvalid = null;
+
+        function mark(fieldName, message) {
+          setFieldError(fieldName, message);
+          errors.push(message);
+          if (!firstInvalid && fieldRefs[fieldName]) {
+            firstInvalid = fieldRefs[fieldName];
+          }
+        }
+
+        if (!name) {
+          mark('name', 'Укажите имя');
+        } else if (name.length < 2) {
+          mark('name', 'Имя должно быть не менее 2 символов');
+        }
+
+        if (!email) {
+          mark('email', 'Укажите e-mail');
+        } else if (!emailRegex.test(email)) {
+          mark('email', 'Введите корректный e-mail');
+        }
+
+        if (!familyMode) {
+          setFieldError('familyMode', 'Выберите вариант: создать семью или присоединиться');
+          errors.push('Выберите вариант семьи');
+        } else if (familyMode === 'create') {
+          if (!familyName) {
+            mark('familyName', 'Укажите название семьи');
+          } else if (familyName.length < 2) {
+            mark('familyName', 'Название семьи — минимум 2 символа');
+          }
+        } else if (familyMode === 'join') {
+          if (!inviteCode) {
+            mark('inviteCode', 'Введите код приглашения');
+          } else if (inviteCode.length < 5 || inviteCode.length > 6) {
+            mark('inviteCode', 'Код должен содержать 5–6 цифр');
+          }
+        }
+
+        if (!password) {
+          mark('password', 'Укажите пароль');
+        } else if (password.length < 6) {
+          mark('password', 'Пароль должен быть не менее 6 символов');
+        }
+
+        if (!password2) {
+          mark('password2', 'Повторите пароль');
+        } else if (password && password !== password2) {
+          mark('password2', 'Пароли не совпадают');
+        }
+
+        return {
+          valid: errors.length === 0,
+          firstInvalid,
+          values: { name, email, password, password2, familyMode, familyName, inviteCode },
+        };
+      }
+
+      document.querySelectorAll('input[name="familyMode"]').forEach((radio) => {
+        radio.addEventListener('change', () => {
+          setFamilyMode(radio.value);
+          clearFieldError('familyMode');
+        });
+      });
+
+      Object.entries(fieldRefs).forEach(([fieldName, input]) => {
+        if (!input) return;
+        input.addEventListener('input', () => clearFieldError(fieldName));
+      });
+
+      if (inviteFromUrl) {
+        joinRadio.checked = true;
+        createRadio.checked = false;
+        inviteInput.value = String(inviteFromUrl).replace(/\D/g, '').slice(0, 6);
+        setFamilyMode('join');
+      } else {
+        setFamilyMode('create');
+      }
+
+      let inviteCheckTimer;
+      async function updateInviteHint() {
+        const code = inviteInput.value.replace(/\D/g, '');
+        if (code.length < 5) {
+          inviteHint.hidden = true;
+          return;
+        }
+
+        try {
+          const result = await checkInviteCode(code);
+          inviteHint.hidden = false;
+          if (result.valid) {
+            inviteHint.className = 'invite-hint';
+            inviteHint.textContent = `Код действителен — семья «${result.familyName || 'без названия'}»`;
+          } else {
+            inviteHint.className = 'invite-hint invite-hint--warn';
+            inviteHint.textContent = 'Код не найден или истёк';
+          }
+        } catch {
+          inviteHint.hidden = true;
+        }
+      }
+
+      inviteInput.addEventListener('input', () => {
+        inviteInput.value = inviteInput.value.replace(/\D/g, '').slice(0, 6);
+        clearTimeout(inviteCheckTimer);
+        inviteCheckTimer = setTimeout(updateInviteHint, 400);
+      });
+
+      if (inviteFromUrl) {
+        updateInviteHint();
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const validation = validateRegisterForm();
+        if (!validation.valid) {
+          showFormError('Проверьте поля, отмеченные красным');
+          validation.firstInvalid?.focus();
+          return;
+        }
+
+        const { name, email, password, familyMode, familyName, inviteCode } = validation.values;
+        const submitBtn = document.getElementById('register-submit-btn');
+
+        submitBtn.disabled = true;
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Загрузка...';
+
+        try {
+          const result = await register({
+            email,
+            name,
+            password,
+            familyMode,
+            familyName: familyMode === 'create' ? familyName : undefined,
+            inviteCode: familyMode === 'join' ? inviteCode : undefined,
+          });
+
+          let successText = '✓ Регистрация успешна! Перенаправление...';
+          if (result.family?.inviteCode) {
+            successText = `✓ Семья создана! Код приглашения: ${result.family.inviteCode}. Перенаправление...`;
+          }
+          showFormError(successText, true);
+
+          setTimeout(() => {
+            window.location.href = APP_ROUTES.goals;
+          }, 2000);
+        } catch (error) {
+          console.error('Registration error:', error);
+
+          let errorMessage = 'Ошибка регистрации';
+
+          if (error.message) {
+            errorMessage = error.message;
+          } else if (error.status === 409) {
+            errorMessage = 'Пользователь с таким email уже существует';
+            setFieldError('email', errorMessage);
+          } else if (error.status === 400) {
+            errorMessage = error.data?.message || 'Некорректные данные для регистрации';
+            if (/invite/i.test(errorMessage)) {
+              setFieldError('inviteCode', errorMessage);
+            }
+          } else if (error.status >= 500) {
+            errorMessage = 'Ошибка сервера. Попробуйте позже';
+          } else if (error.message === 'Failed to fetch') {
+            errorMessage =
+              'Не удалось подключиться к серверу. Убедитесь, что API запущен (' +
+              API_CONFIG.baseURL +
+              ')';
+          }
+
+          showFormError('✗ ' + errorMessage);
+
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
+        }
+      });
+
+      redirectIfAuthenticated(APP_ROUTES.goals);
+    </script>
+  </body>
+</html>
+

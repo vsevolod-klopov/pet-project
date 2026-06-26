@@ -1,0 +1,155 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Список семьи · Личные хотелки</title>
+    <link rel="stylesheet" href="../assets/css/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <div class="header-inner">
+          <a href="/index.html" class="logo">
+            <div class="logo-mark">W</div>
+            <div>
+              <div class="logo-text-main">Домашняя карта желаний</div>
+              <div class="logo-text-sub">Общие цели и личные хотелки</div>
+            </div>
+          </a>
+          <nav class="nav" aria-label="Основная навигация">
+            <a class="nav-link" href="/pages/goals.html">Общие цели</a>
+            <a class="nav-link nav-link--primary" href="/pages/family.html" aria-current="page"
+              >Список семьи</a
+            >
+            <a class="nav-link" href="/pages/my-wishlist.html">Мои хотелки</a>
+            <a class="nav-link" href="/pages/auth/login.html">Войти</a>
+          </nav>
+          <button class="menu-toggle" aria-label="Открыть меню">
+            <span></span>
+          </button>
+        </div>
+      </header>
+
+      <div class="mobile-nav-overlay" hidden></div>
+      <aside class="mobile-nav" hidden>
+        <div class="mobile-nav-top">
+          <div class="mobile-nav-title">Меню</div>
+          <button class="mobile-nav-close" type="button" data-mobile-nav-close aria-label="Закрыть">
+            ×
+          </button>
+        </div>
+        <div class="mobile-nav-links" aria-label="Навигация (мобильная)">
+          <a class="mobile-nav-link" href="/index.html">Главная</a>
+          <a class="mobile-nav-link" href="/pages/goals.html">Общие цели</a>
+          <a class="mobile-nav-link mobile-nav-link--primary" href="/pages/family.html">Список семьи</a>
+          <a class="mobile-nav-link" href="/pages/my-wishlist.html">Мои хотелки</a>
+          <a class="mobile-nav-link" href="/pages/auth/login.html">Войти</a>
+        </div>
+        <div class="mobile-nav-hint">Выбери человека, чтобы открыть его хотелки.</div>
+      </aside>
+
+      <main class="app-main">
+        <section class="page">
+          <header class="page-header">
+            <div class="page-title-group">
+              <div class="page-eyebrow">Личные списки желаний</div>
+              <h1 class="page-title">Члены семьи и их хотелки</h1>
+              <p class="page-subtitle">
+                Выберите человека, чтобы открыть его личный список хотелок: товары, идеи подарков,
+                маленькие и большие желания.
+              </p>
+            </div>
+            <div class="page-actions">
+              <a href="/pages/goals.html" class="btn btn--ghost">Перейти к общим целям</a>
+            </div>
+          </header>
+
+          <section class="stack-lg" aria-labelledby="family-list-title">
+            <div class="stack-sm">
+              <h2 id="family-list-title" class="section-title">Состав семьи</h2>
+              <p class="section-caption">
+                Выберите человека, чтобы открыть его личный список хотелок.
+              </p>
+            </div>
+
+            <div class="grid grid--cards-2" data-family-grid></div>
+
+            <div class="family-add-member">
+              <button type="button" class="btn btn--primary" data-family-share-btn>
+                Добавить члена семьи
+              </button>
+            </div>
+          </section>
+        </section>
+      </main>
+
+      <footer class="app-footer">
+        Домашняя карта желаний · Общие цели и личные хотелки
+      </footer>
+    </div>
+
+    <div class="modal-backdrop" data-modal-backdrop="family-share" hidden>
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="family-share-title">
+        <div class="modal-header">
+          <div>
+            <div class="page-eyebrow">Новый участник</div>
+            <h2 class="modal-title" id="family-share-title">Добавить члена семьи</h2>
+          </div>
+          <button
+            class="modal-close"
+            type="button"
+            data-close-modal="family-share"
+            aria-label="Закрыть окно приглашения"
+          >
+            ×
+          </button>
+        </div>
+
+        <div class="stack-sm" data-family-share-body>
+          <p class="section-caption" data-family-share-subtitle>
+            Отправьте ссылку или код — человек зарегистрируется и присоединится к вашей семье.
+          </p>
+
+          <div class="form-field">
+            <label class="form-label" for="family-share-link">Ссылка для регистрации</label>
+            <div class="share-copy-row">
+              <input
+                class="form-input"
+                id="family-share-link"
+                type="text"
+                readonly
+                data-family-share-link
+              />
+              <button type="button" class="btn btn--ghost" data-copy-target="family-share-link">
+                Копировать
+              </button>
+            </div>
+          </div>
+
+          <div class="share-code-block">
+            <div class="form-label">Код для подключения</div>
+            <div class="share-code-display" data-family-share-code>------</div>
+            <button
+              type="button"
+              class="btn btn--primary"
+              data-family-share-copy-code
+            >
+              Копировать код
+            </button>
+          </div>
+
+          <p class="form-helper" data-family-share-expires hidden></p>
+          <p class="form-field-error" data-family-share-error hidden></p>
+        </div>
+      </div>
+    </div>
+
+    <script src="/assets/js/config.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/data.js"></script>
+    <script src="/assets/js/app.js"></script>
+  </body>
+</html>
+

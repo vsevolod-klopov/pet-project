@@ -1,0 +1,183 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Путешествие в Италию · Детальная цель</title>
+    <link rel="stylesheet" href="../assets/css/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <div class="header-inner">
+          <a href="/index.html" class="logo">
+            <div class="logo-mark">W</div>
+            <div>
+              <div class="logo-text-main">Домашняя карта желаний</div>
+              <div class="logo-text-sub">Общие цели и личные хотелки</div>
+            </div>
+          </a>
+          <nav class="nav" aria-label="Основная навигация">
+            <a class="nav-link nav-link--primary" href="/pages/goals.html">Общие цели</a>
+            <a class="nav-link" href="/pages/family.html">Список семьи</a>
+            <a class="nav-link" href="/pages/my-wishlist.html">Мои хотелки</a>
+            <a class="nav-link" href="/pages/auth/login.html">Войти</a>
+          </nav>
+          <button class="menu-toggle" aria-label="Открыть меню">
+            <span></span>
+          </button>
+        </div>
+      </header>
+
+      <div class="mobile-nav-overlay" hidden></div>
+      <aside class="mobile-nav" hidden>
+        <div class="mobile-nav-top">
+          <div class="mobile-nav-title">Меню</div>
+          <button class="mobile-nav-close" type="button" data-mobile-nav-close aria-label="Закрыть">
+            ×
+          </button>
+        </div>
+        <div class="mobile-nav-links" aria-label="Навигация (мобильная)">
+          <a class="mobile-nav-link" href="/index.html">Главная</a>
+          <a class="mobile-nav-link mobile-nav-link--primary" href="/pages/goals.html">Общие цели</a>
+          <a class="mobile-nav-link" href="/pages/family.html">Список семьи</a>
+          <a class="mobile-nav-link" href="/pages/my-wishlist.html">Мои хотелки</a>
+          <a class="mobile-nav-link" href="/pages/auth/login.html">Войти</a>
+        </div>
+        <div class="mobile-nav-hint">Подсказка: можно открыть цель по `?id=...`.</div>
+      </aside>
+
+      <main class="app-main" data-goal-detail>
+        <section class="page">
+          <header class="page-header">
+            <div class="page-title-group">
+              <div class="page-eyebrow">Детальная цель</div>
+              <h1 class="page-title" data-goal-title>Цель</h1>
+              <p class="page-subtitle" data-goal-subtitle></p>
+            </div>
+            <div class="page-actions">
+              <a href="/pages/goals.html" class="btn btn--ghost">← Назад к списку целей</a>
+            </div>
+          </header>
+
+          <div class="goal-detail-layout">
+            <div class="stack-lg">
+              <section aria-label="Картинки и коллаж" class="stack">
+                <div data-goal-carousel class="goal-carousel-host"></div>
+              </section>
+
+              <section aria-label="Описание цели" class="goal-content">
+                <div class="stack-sm">
+                  <h2 class="section-title">Полное описание</h2>
+                  <div data-goal-description></div>
+                </div>
+
+                <div class="stack-sm">
+                  <div class="goal-steps-header">
+                    <div class="goal-steps-header-top">
+                      <h2 class="section-title">Шаги на пути к цели</h2>
+                      <button class="btn btn--primary btn--sm" type="button" data-open-goal-step hidden>
+                        Шаг к цели
+                      </button>
+                    </div>
+                    <p class="section-caption">Записи семьи: комментарий, этап и одно фото к моменту.</p>
+                  </div>
+                  <div class="goal-steps-feed" data-goal-steps></div>
+                </div>
+              </section>
+            </div>
+
+            <aside class="goal-summary-card" aria-label="Сводка по цели">
+              <div class="goal-summary-status-block">
+                <div class="goal-summary-eyebrow">Текущий этап</div>
+                <span class="goal-step-status goal-step-status--spark" data-goal-status-pill>Зарождается</span>
+                <p class="goal-summary-hint">Синхронизируется с последним шагом семьи</p>
+              </div>
+              <dl class="goal-summary-facts">
+                <div>
+                  <dt>Категория</dt>
+                  <dd data-goal-category>—</dd>
+                </div>
+                <div>
+                  <dt>Горизонт</dt>
+                  <dd data-goal-horizon>—</dd>
+                </div>
+                <div>
+                  <dt>Участники</dt>
+                  <dd data-goal-owners>—</dd>
+                </div>
+                <div>
+                  <dt>Шагов в журнале</dt>
+                  <dd data-goal-steps-count>0</dd>
+                </div>
+              </dl>
+            </aside>
+          </div>
+        </section>
+      </main>
+
+      <div class="modal-backdrop" data-modal-backdrop="goal-step" hidden>
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="goal-step-modal-title">
+          <div class="modal-header">
+            <div>
+              <div class="page-eyebrow">Шаг к цели</div>
+              <h2 class="modal-title" id="goal-step-modal-title">Новый шаг</h2>
+            </div>
+            <button class="modal-close" type="button" data-close-modal="goal-step" aria-label="Закрыть">×</button>
+          </div>
+          <form class="form-grid" data-goal-step-form>
+            <input type="hidden" name="goalId" />
+            <div class="form-field">
+              <label class="form-label form-label--required" for="goal-step-comment">Комментарий</label>
+              <textarea
+                class="form-textarea"
+                id="goal-step-comment"
+                name="comment"
+                required
+                placeholder="Что произошло, что обсудили или что сделали по пути к цели?"
+              ></textarea>
+            </div>
+            <div class="form-field">
+              <label class="form-label form-label--required" for="goal-step-status">Этап</label>
+              <select class="form-select" id="goal-step-status" name="status" required data-goal-step-status></select>
+              <p class="form-helper">Пять последовательных этапов — от идеи до празднования.</p>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Фото к шагу</label>
+              <label class="file-picker">
+                <input
+                  class="file-picker-input"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  data-goal-step-image-file
+                />
+                <span class="file-picker-face">
+                  <span class="file-picker-icon" aria-hidden="true">↑</span>
+                  <span class="file-picker-text" data-file-picker-text>Выбрать изображение</span>
+                </span>
+              </label>
+              <p class="form-helper">Необязательно. Одно фото, до 5 МБ.</p>
+              <div class="image-preview" data-goal-step-image-preview hidden></div>
+            </div>
+            <p class="form-field-error" data-goal-step-form-error hidden></p>
+            <div class="form-actions">
+              <button class="btn btn--ghost" type="button" data-close-modal="goal-step">Отмена</button>
+              <button class="btn btn--primary" type="submit">Сохранить шаг</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <footer class="app-footer">
+        Домашняя карта желаний · Общие цели и личные хотелки
+      </footer>
+    </div>
+
+    <script src="/assets/js/config.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/data.js"></script>
+    <script src="/assets/js/app.js"></script>
+  </body>
+</html>
+
