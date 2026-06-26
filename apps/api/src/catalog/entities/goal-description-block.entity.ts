@@ -1,5 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Goal } from './goal.entity';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('goal_description_blocks')
 export class GoalDescriptionBlock {
@@ -14,8 +13,4 @@ export class GoalDescriptionBlock {
 
   @Column({ name: 'sort_order', default: 0 })
   sortOrder!: number;
-
-  @ManyToOne(() => Goal, (goal) => goal.descriptionBlocks, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'goal_id' })
-  goal!: Goal;
 }

@@ -87,25 +87,21 @@ export class GoalService {
 
     if (gallery.length) {
       await this.goalImages.save(
-        gallery.map((image, index) =>
-          this.goalImages.create({
-            goal: { id: goal.id },
-            src: image.src,
-            alt: image.alt ?? null,
-            sortOrder: index,
-          }),
-        ),
+        gallery.map((image, index) => ({
+          goalId: goal.id,
+          src: image.src,
+          alt: image.alt ?? null,
+          sortOrder: index,
+        })),
       );
     }
 
     if (description) {
-      await this.descriptionBlocks.save(
-        this.descriptionBlocks.create({
-          goal: { id: goal.id },
-          text: description,
-          sortOrder: 0,
-        }),
-      );
+      await this.descriptionBlocks.save({
+        goalId: goal.id,
+        text: description,
+        sortOrder: 0,
+      });
     }
 
     return toPublicGoal(await this.loadGoalWithRelations(goal.id));
@@ -138,13 +134,11 @@ export class GoalService {
       const text = input.description.trim();
       await this.descriptionBlocks.delete({ goalId: goal.id });
       if (text) {
-        await this.descriptionBlocks.save(
-          this.descriptionBlocks.create({
-            goal: { id: goal.id },
-            text,
-            sortOrder: 0,
-          }),
-        );
+        await this.descriptionBlocks.save({
+          goalId: goal.id,
+          text,
+          sortOrder: 0,
+        });
         if (input.short === undefined) {
           goal.short = text.slice(0, 280);
         }
@@ -163,14 +157,12 @@ export class GoalService {
 
       if (gallery.length) {
         await this.goalImages.save(
-          gallery.map((image, index) =>
-            this.goalImages.create({
-              goal: { id: goal.id },
-              src: image.src,
-              alt: image.alt ?? null,
-              sortOrder: index,
-            }),
-          ),
+          gallery.map((image, index) => ({
+            goalId: goal.id,
+            src: image.src,
+            alt: image.alt ?? null,
+            sortOrder: index,
+          })),
         );
       }
 
@@ -227,17 +219,15 @@ export class GoalService {
     const image = input.image?.trim() || null;
 
     const stepCount = await this.goalSteps.count({ where: { goalId: goal.id } });
-    const saved = await this.goalSteps.save(
-      this.goalSteps.create({
-        goal: { id: goal.id },
-        userId,
-        text: comment.slice(0, 500),
-        status,
-        image,
-        imageAlt: input.imageAlt?.trim()?.slice(0, 255) || comment.slice(0, 255),
-        sortOrder: stepCount,
-      }),
-    );
+    const saved = await this.goalSteps.save({
+      goalId: goal.id,
+      userId,
+      text: comment.slice(0, 500),
+      status,
+      image,
+      imageAlt: input.imageAlt?.trim()?.slice(0, 255) || comment.slice(0, 255),
+      sortOrder: stepCount,
+    });
 
     goal.status = getGoalStepStatusLabel(status);
     await this.goals.save(goal);
@@ -305,8 +295,6 @@ export class GoalService {
 
     const goal = await this.goals
       .createQueryBuilder('goal')
-      .leftJoinAndSelect('goal.images', 'images')
-      .leftJoinAndSelect('goal.descriptionBlocks', 'descriptionBlocks')
       .where('goal.family_id = :familyId', { familyId: membership.familyId })
       .andWhere('(goal.id::text = :goalId OR goal.legacy_key = :goalId)', { goalId: goalIdOrKey })
       .getOne();
@@ -315,17 +303,31 @@ export class GoalService {
       throw new NotFoundException('Goal not found');
     }
 
+    await this.attachGoalRelations(goal);
     return goal;
   }
 
+  private async attachGoalRelations(goal: Goal): Promise<void> {
+    const [images, descriptionBlocks] = await Promise.all([
+      this.goalImages.find({
+        where: { goalId: goal.id },
+        order: { sortOrder: 'ASC' },
+      }),
+      this.descriptionBlocks.find({
+        where: { goalId: goal.id },
+        order: { sortOrder: 'ASC' },
+      }),
+    ]);
+    goal.images = images;
+    goal.descriptionBlocks = descriptionBlocks;
+  }
+
   private async loadGoalWithRelations(goalId: string): Promise<Goal> {
-    const goal = await this.goals.findOne({
-      where: { id: goalId },
-      relations: ['images', 'descriptionBlocks'],
-    });
+    const goal = await this.goals.findOne({ where: { id: goalId } });
     if (!goal) {
       throw new NotFoundException('Goal not found');
     }
+    await this.attachGoalRelations(goal);
     return goal;
   }
 

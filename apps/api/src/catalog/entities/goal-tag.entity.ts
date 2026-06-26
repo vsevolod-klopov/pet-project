@@ -1,5 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Goal } from './goal.entity';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('goal_tags')
 export class GoalTag {
@@ -11,8 +10,4 @@ export class GoalTag {
 
   @Column({ length: 50 })
   tag!: string;
-
-  @ManyToOne(() => Goal, (goal) => goal.tags, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'goal_id' })
-  goal!: Goal;
 }

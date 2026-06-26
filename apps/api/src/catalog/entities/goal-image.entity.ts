@@ -1,5 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Goal } from './goal.entity';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('goal_images')
 export class GoalImage {
@@ -17,8 +16,4 @@ export class GoalImage {
 
   @Column({ name: 'sort_order', default: 0 })
   sortOrder!: number;
-
-  @ManyToOne(() => Goal, (goal) => goal.images, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'goal_id' })
-  goal!: Goal;
 }

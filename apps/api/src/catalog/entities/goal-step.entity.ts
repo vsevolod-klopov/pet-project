@@ -2,11 +2,8 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
-  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Goal } from './goal.entity';
 
 @Entity('goal_steps')
 export class GoalStep {
@@ -39,8 +36,4 @@ export class GoalStep {
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
-
-  @ManyToOne(() => Goal, (goal) => goal.steps, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'goal_id' })
-  goal!: Goal;
 }

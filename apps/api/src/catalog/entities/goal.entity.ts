@@ -2,7 +2,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -67,15 +66,11 @@ export class Goal {
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
   updatedAt!: Date;
 
-  @OneToMany(() => GoalImage, (image) => image.goal)
-  images!: GoalImage[];
+  images?: GoalImage[];
 
-  @OneToMany(() => GoalStep, (step) => step.goal)
-  steps!: GoalStep[];
+  steps?: GoalStep[];
 
-  @OneToMany(() => GoalTag, (tag) => tag.goal)
-  tags!: GoalTag[];
+  tags?: GoalTag[];
 
-  @OneToMany(() => GoalDescriptionBlock, (block) => block.goal)
-  descriptionBlocks!: GoalDescriptionBlock[];
+  descriptionBlocks?: GoalDescriptionBlock[];
 }
