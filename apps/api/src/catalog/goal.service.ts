@@ -86,18 +86,18 @@ export class GoalService {
     });
 
     if (gallery.length) {
-      await this.goalImages.save(
+      await this.goalImages.insert(
         gallery.map((image, index) => ({
           goalId: goal.id,
           src: image.src,
-          alt: image.alt,
+          alt: image.alt ?? null,
           sortOrder: index,
         })),
       );
     }
 
     if (description) {
-      await this.descriptionBlocks.save({
+      await this.descriptionBlocks.insert({
         goalId: goal.id,
         text: description,
         sortOrder: 0,
@@ -134,7 +134,7 @@ export class GoalService {
       const text = input.description.trim();
       await this.descriptionBlocks.delete({ goalId: goal.id });
       if (text) {
-        await this.descriptionBlocks.save({
+        await this.descriptionBlocks.insert({
           goalId: goal.id,
           text,
           sortOrder: 0,
@@ -156,11 +156,11 @@ export class GoalService {
       await this.goalImages.delete({ goalId: goal.id });
 
       if (gallery.length) {
-        await this.goalImages.save(
+        await this.goalImages.insert(
           gallery.map((image, index) => ({
             goalId: goal.id,
             src: image.src,
-            alt: image.alt,
+            alt: image.alt ?? null,
             sortOrder: index,
           })),
         );
@@ -219,7 +219,7 @@ export class GoalService {
     const image = input.image?.trim() || null;
 
     const stepCount = await this.goalSteps.count({ where: { goalId: goal.id } });
-    const saved = await this.goalSteps.save({
+    const inserted = await this.goalSteps.insert({
       goalId: goal.id,
       userId,
       text: comment.slice(0, 500),
@@ -228,6 +228,8 @@ export class GoalService {
       imageAlt: input.imageAlt?.trim()?.slice(0, 255) || comment.slice(0, 255),
       sortOrder: stepCount,
     });
+    const stepId = inserted.identifiers[0].id as string;
+    const saved = await this.goalSteps.findOneByOrFail({ id: stepId });
 
     goal.status = getGoalStepStatusLabel(status);
     await this.goals.save(goal);
