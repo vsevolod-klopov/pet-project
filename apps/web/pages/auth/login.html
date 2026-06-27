@@ -17,29 +17,9 @@
               <div class="logo-text-sub">Общие цели и личные хотелки</div>
             </div>
           </a>
-          <!--<button class="menu-toggle" aria-label="Открыть меню"> -->
-            <span></span>
-          </button>
         </div>
       </header>
 
-      <div class="mobile-nav-overlay" hidden></div>
-      <!--<aside class="mobile-nav" hidden>
-        <div class="mobile-nav-top">
-          <div class="mobile-nav-title">Меню</div>
-          <button class="mobile-nav-close" type="button" data-mobile-nav-close aria-label="Закрыть">
-            ×
-          </button>
-        </div>
-        <div class="mobile-nav-links" aria-label="Навигация (мобильная)">
-          <a class="mobile-nav-link" href="/index.html">Главная</a>
-          <a class="mobile-nav-link" href="/pages/goals.html">Общие цели</a>
-          <a class="mobile-nav-link" href="/pages/family.html">Список семьи</a>
-          <a class="mobile-nav-link" href="/pages/my-wishlist.html">Мои хотелки</a>
-          <a class="mobile-nav-link mobile-nav-link--primary" href="/pages/auth/login.html">Войти</a>
-        </div>
-        <div class="mobile-nav-hint">Авторизуйтесь, чтобы синхронизировать данные в будущем.</div>
-      </aside> -->
       <main class="app-main">
         <section class="page">
           <header class="page-header">
@@ -69,15 +49,25 @@
                 </div>
                 <div class="form-field">
                   <label class="form-label" for="login-password">Пароль</label>
-                  <input
-                    class="form-input"
-                    id="login-password"
-                    type="password"
-                    name="password"
-                    autocomplete="current-password"
-                    required
-                    placeholder="••••••••"
-                  />
+                  <div class="password-input-wrap">
+                    <input
+                      class="form-input"
+                      id="login-password"
+                      type="password"
+                      name="password"
+                      autocomplete="current-password"
+                      required
+                      placeholder="••••••••"
+                    />
+                    <button
+                      type="button"
+                      class="password-toggle"
+                      data-password-toggle="login-password"
+                      aria-label="Показать пароль"
+                    >
+                      Показать
+                    </button>
+                  </div>
                 </div>
                 <div id="login-error" class="form-error" style="display: none;"></div>
                 <div class="form-actions">

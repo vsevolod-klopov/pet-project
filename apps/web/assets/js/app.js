@@ -810,7 +810,7 @@ function ensureGoalDetailModal() {
           <div class="card-goal-actions" data-goal-detail-actions hidden>
             <button type="button" class="btn btn--ghost btn--sm" data-goal-detail-edit>Изменить</button>
             <button type="button" class="btn btn--ghost btn--sm btn--danger" data-goal-detail-delete>Удалить</button>
-            <a class="btn btn--ghost btn--sm" data-goal-detail-page href="#">Полная страница</a>
+            <a class="btn btn--ghost btn--sm" data-goal-detail-page href="#">Открыть отдельной страницей</a>
           </div>
         </div>
       </div>
@@ -1061,15 +1061,10 @@ function renderDesktopNav() {
     return;
   }
 
-  const hasLogin = nav.querySelector('a[href="/pages/auth/login.html"]');
-  if (!hasLogin) {
-    nav.innerHTML = `
-      <a class="${navLinkClass(APP_ROUTES.goals)}" href="${APP_ROUTES.goals}"${navLinkAttrs(APP_ROUTES.goals)}>Общие цели</a>
-      <a class="${navLinkClass(APP_ROUTES.family)}" href="${APP_ROUTES.family}"${navLinkAttrs(APP_ROUTES.family)}>Список семьи</a>
-      <a class="${navLinkClass(APP_ROUTES.myWishlist)}" href="${APP_ROUTES.myWishlist}"${navLinkAttrs(APP_ROUTES.myWishlist)}>Мои хотелки</a>
-      <a class="${navLinkClass(APP_ROUTES.login)}" href="${APP_ROUTES.login}"${navLinkAttrs(APP_ROUTES.login)}>Войти</a>
-    `;
-  }
+  nav.innerHTML = `
+    <a class="${navLinkClass(APP_ROUTES.login)}" href="${APP_ROUTES.login}"${navLinkAttrs(APP_ROUTES.login)}>Войти</a>
+    <a class="${navLinkClass(APP_ROUTES.register)}" href="${APP_ROUTES.register}"${navLinkAttrs(APP_ROUTES.register)}>Регистрация</a>
+  `;
 }
 
 function renderMobileNavFamilySection() {
@@ -1150,9 +1145,6 @@ function renderMobileNav() {
         </div>
         <nav class="mobile-nav-links" aria-label="Навигация (мобильная)">
           <a class="${mobileNavLinkClass(APP_ROUTES.home)}" href="${APP_ROUTES.home}"${mobileNavLinkAttrs(APP_ROUTES.home)}>Главная</a>
-          <a class="${mobileNavLinkClass(APP_ROUTES.goals)}" href="${APP_ROUTES.goals}"${mobileNavLinkAttrs(APP_ROUTES.goals)}>Общие цели</a>
-          <a class="${mobileNavLinkClass(APP_ROUTES.family)}" href="${APP_ROUTES.family}"${mobileNavLinkAttrs(APP_ROUTES.family)}>Список семьи</a>
-          <a class="${mobileNavLinkClass(APP_ROUTES.myWishlist)}" href="${APP_ROUTES.myWishlist}"${mobileNavLinkAttrs(APP_ROUTES.myWishlist)}>Мои хотелки</a>
           <a class="${mobileNavLinkClass(APP_ROUTES.login)}" href="${APP_ROUTES.login}"${mobileNavLinkAttrs(APP_ROUTES.login)}>Войти</a>
           <a class="${mobileNavLinkClass(APP_ROUTES.register)}" href="${APP_ROUTES.register}"${mobileNavLinkAttrs(APP_ROUTES.register)}>Регистрация</a>
         </nav>
@@ -1173,10 +1165,35 @@ function renderMobileNav() {
   });
 }
 
+function renderHomeActions() {
+  // На главной для гостя показываем призыв войти/зарегистрироваться,
+  // а не ссылки на защищённые страницы (иначе клик ведёт на логин).
+  const actions = document.querySelector("[data-home-actions]");
+  if (!actions) return;
+
+  const authed = typeof isAuthenticated === "function" && isAuthenticated();
+  if (authed) {
+    actions.innerHTML = `
+      <a href="${APP_ROUTES.goals}" class="btn btn--primary">К общим целям</a>
+      <a href="${APP_ROUTES.family}" class="btn btn--ghost">Смотреть хотелки семьи</a>
+    `;
+    actions.hidden = false;
+    return;
+  }
+
+  // Для гостя — один заметный CTA в hero (вход/регистрация остаются в шапке).
+  actions.innerHTML = `
+    <a href="${APP_ROUTES.register}" class="btn btn--primary">Создать семью</a>
+    <a href="${APP_ROUTES.login}" class="btn btn--ghost">У меня уже есть аккаунт</a>
+  `;
+  actions.hidden = false;
+}
+
 function initHeaderNav() {
   renderHeaderBrand();
   renderDesktopNav();
   renderMobileNav();
+  renderHomeActions();
 }
 
 function initModals() {
@@ -1246,25 +1263,29 @@ function renderGoalsList() {
         `
         : "";
 
+      const categoryHtml = g.category
+        ? `<div class="card-media-tag"><span class="${chipClass}">${escapeHtml(g.category)}</span></div>`
+        : "";
+      const horizonHtml = g.horizon
+        ? `<p class="card-meta">Горизонт: ${escapeHtml(g.horizon)}</p>`
+        : "";
+      const shortHtml = g.short ? `<p class="card-text">${escapeHtml(g.short)}</p>` : "";
+
       return `
-        <article class="card card--goal" data-goal-view="${escapeHtml(g.id)}" tabindex="0" role="button" aria-label="${escapeHtml(g.title)}">
+        <article class="card card--goal" data-goal-view="${escapeHtml(g.id)}">
           <div class="card-media">
             <img src="${escapeHtml(resolveMediaUrl(g.coverImage))}" alt="${escapeHtml(g.coverAlt || g.title)}" loading="lazy" />
-            <div class="card-media-tag">
-              <span class="${chipClass}">
-                ${escapeHtml(g.category)}
-              </span>
-            </div>
+            ${categoryHtml}
           </div>
           <div class="card-body">
             <div class="card-title-row">
               <h3 class="card-title">${escapeHtml(g.title)}</h3>
             </div>
-            <p class="card-meta">Горизонт: ${escapeHtml(g.horizon)}</p>
+            ${horizonHtml}
             <div class="goal-card-status">${buildGoalStatusPillHtml(g)}</div>
-            <p class="card-text">${escapeHtml(g.short)}</p>
+            ${shortHtml}
             <div class="card-footer">
-              <span class="card-link">Открыть подробности →</span>
+              <button type="button" class="card-link card-link--btn" data-goal-open="${escapeHtml(g.id)}">Открыть подробности →</button>
             </div>
             ${actionsHtml}
           </div>
@@ -1284,15 +1305,16 @@ function bindGoalCardInteractions(grid) {
 
   grid.querySelectorAll("[data-goal-view]").forEach((card) => {
     card.addEventListener("click", (e) => {
-      if (e.target.closest("[data-goal-edit], [data-goal-delete]")) return;
+      if (e.target.closest("[data-goal-edit], [data-goal-delete], [data-goal-open]")) return;
       const goal = findGoalById(card.getAttribute("data-goal-view"));
       if (goal) openGoalDetail(goal);
     });
-    card.addEventListener("keydown", (e) => {
-      if (e.key !== "Enter" && e.key !== " ") return;
-      if (e.target.closest("[data-goal-edit], [data-goal-delete]")) return;
-      e.preventDefault();
-      const goal = findGoalById(card.getAttribute("data-goal-view"));
+  });
+
+  grid.querySelectorAll("[data-goal-open]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const goal = findGoalById(btn.getAttribute("data-goal-open"));
       if (goal) openGoalDetail(goal);
     });
   });
@@ -1561,23 +1583,6 @@ function initGoalForm() {
       return;
     }
 
-    const totalImages = goalFormExistingImages.length + goalFormPendingFiles.length;
-    if (!goalId && totalImages === 0) {
-      if (errorEl) {
-        errorEl.hidden = false;
-        errorEl.textContent = "Добавьте хотя бы одно фото";
-      }
-      return;
-    }
-
-    if (goalId && totalImages === 0) {
-      if (errorEl) {
-        errorEl.hidden = false;
-        errorEl.textContent = "У цели должно остаться хотя бы одно фото";
-      }
-      return;
-    }
-
     submitBtn.disabled = true;
     const originalLabel = submitBtn.textContent;
     submitBtn.textContent = "Сохранение...";
@@ -1832,7 +1837,7 @@ function renderWishlist() {
   setText("[data-wishlist-title]", title);
   setText(
     "[data-wishlist-subtitle]",
-    "Карточки с картинкой, описанием и ссылкой. Позже ты заменишь данные на ответы бэкенда."
+    "Карточки с картинкой, описанием и ссылкой."
   );
 
   const grid = document.querySelector("[data-wishlist-grid]");
@@ -1842,7 +1847,7 @@ function renderWishlist() {
   grid.className = "grid grid--wish-tiles";
 
   if (items.length === 0) {
-    grid.innerHTML = `<div class="small-muted">Пока нет хотелок — добавь первую позже.</div>`;
+    grid.innerHTML = `<div class="small-muted">В этом списке пока нет хотелок.</div>`;
     return;
   }
 
@@ -1880,8 +1885,9 @@ function renderMyWishlist() {
   if (!grid) return;
 
   if (!myWishlist.length) {
-    grid.innerHTML = `<div class="small-muted">Пока нет ни одной хотелки. Добавьте первую.</div>`;
+    grid.innerHTML = "";
     if (emptyEl) {
+      emptyEl.hidden = false;
       emptyEl.textContent = "Пока нет ни одной хотелки. Добавьте первую, чтобы начать список.";
     }
     return;
@@ -2052,14 +2058,6 @@ function initMyWishlistForm() {
       return;
     }
 
-    if (!wishId && !file) {
-      if (errorEl) {
-        errorEl.hidden = false;
-        errorEl.textContent = "Добавьте изображение";
-      }
-      return;
-    }
-
     const payload = {
       title,
       link: form.elements.link.value.trim() || undefined,
@@ -2121,10 +2119,25 @@ function initMyWishlistForm() {
   });
 }
 
+function initPasswordToggles() {
+  document.querySelectorAll("[data-password-toggle]").forEach((btn) => {
+    const input = document.getElementById(btn.getAttribute("data-password-toggle"));
+    if (!input) return;
+    btn.addEventListener("click", () => {
+      const show = input.type === "password";
+      input.type = show ? "text" : "password";
+      btn.textContent = show ? "Скрыть" : "Показать";
+      btn.setAttribute("aria-label", show ? "Скрыть пароль" : "Показать пароль");
+    });
+  });
+}
+
 async function init() {
   // Точка входа фронтенда:
   // 1) проверка авторизации, 2) инициализация модалок/навигации,
   // 3) загрузка данных, 4) рендер экранов и подключение обработчиков форм.
+  initPasswordToggles();
+
   if (typeof requireAuth === 'function' && !requireAuth()) {
     return;
   }
