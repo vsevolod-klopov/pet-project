@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { FamilyService } from '../../catalog/family.service';
 import {
   AuthService,
@@ -23,6 +23,15 @@ class RegisterRequest {
 
 class RefreshRequest {
   refreshToken!: string;
+}
+
+class ForgotPasswordRequest {
+  email!: string;
+}
+
+class ResetPasswordRequest {
+  token!: string;
+  passwordHash!: string;
 }
 
 @Controller('auth')
@@ -70,5 +79,33 @@ export class AuthController {
     }
 
     return this.authService.refresh(refreshToken);
+  }
+
+  @Post('forgot-password')
+  async forgotPassword(
+    @Body() body: ForgotPasswordRequest,
+  ): Promise<{ message: string }> {
+    if (!body.email?.trim()) {
+      throw new BadRequestException('Email is required');
+    }
+    return this.authService.requestPasswordReset(body.email);
+  }
+
+  @Get('reset-password/validate')
+  async validateResetToken(
+    @Query('token') token: string,
+  ): Promise<{ valid: boolean }> {
+    return this.authService.validateResetToken(token || '');
+  }
+
+  @Post('reset-password')
+  async resetPassword(
+    @Body() body: ResetPasswordRequest,
+  ): Promise<{ message: string }> {
+    const { token, passwordHash } = body;
+    if (!token || !passwordHash) {
+      throw new BadRequestException('Token and passwordHash are required');
+    }
+    return this.authService.resetPassword(token, passwordHash);
   }
 }

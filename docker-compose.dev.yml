@@ -39,6 +39,14 @@ services:
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-dev-refresh-secret}
       UPLOAD_DIR: /app/uploads
       CHOKIDAR_USEPOLLING: "true"
+      DOMAIN: ${DOMAIN:-localhost}
+      PUBLIC_APP_URL: ${PUBLIC_APP_URL:-http://localhost:8080}
+      RUSENDER_API_KEY: ${RUSENDER_API_KEY:-rs_ck_v1_placeholder}
+      RUSENDER_KEY_ID: ${RUSENDER_KEY_ID:-0}
+      RUSENDER_FROM_EMAIL: ${RUSENDER_FROM_EMAIL:-noreply@example.com}
+      RUSENDER_FROM_NAME: ${RUSENDER_FROM_NAME:-Домашняя карта желаний}
+      RUSENDER_API_BASE: ${RUSENDER_API_BASE:-https://api.rusender.ru/api/v1/external-mails/send}
+      RESET_TOKEN_TTL_MIN: ${RESET_TOKEN_TTL_MIN:-60}
     ports:
       - "${API_PORT:-3000}:3000"
     volumes:

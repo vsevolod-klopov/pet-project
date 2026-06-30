@@ -46,6 +46,9 @@ const API_CONFIG = {
     login: '/auth/login',
     refresh: '/auth/refresh',
     inviteCheck: '/auth/invite',
+    forgotPassword: '/auth/forgot-password',
+    resetPassword: '/auth/reset-password',
+    resetPasswordValidate: '/auth/reset-password/validate',
     data: '/api/data',
     family: '/api/family',
     familyInvite: '/api/family/invite',
@@ -72,6 +75,8 @@ const APP_ROUTES = {
   profile: '/pages/profile',
   login: '/pages/auth/login',
   register: '/pages/auth/register',
+  forgotPassword: '/pages/auth/forgot-password',
+  resetPassword: '/pages/auth/reset-password',
 };
 
 /**

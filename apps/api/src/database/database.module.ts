@@ -12,6 +12,7 @@ import { GoalTag } from '../catalog/entities/goal-tag.entity';
 import { GoalDescriptionBlock } from '../catalog/entities/goal-description-block.entity';
 import { Wish } from '../catalog/entities/wish.entity';
 import { FamilyInvite } from '../catalog/entities/family-invite.entity';
+import { PasswordResetToken } from './entities/password-reset-token.entity';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { FamilyInvite } from '../catalog/entities/family-invite.entity';
         'postgresql://pet:pet@localhost:5432/pet_db',
       entities: [
         User,
+        PasswordResetToken,
         Family,
         FamilyMember,
         Goal,

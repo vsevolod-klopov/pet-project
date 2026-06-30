@@ -40,6 +40,14 @@ services:
       JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-change-me-too-in-production}
       UPLOAD_DIR: /app/uploads
+      DOMAIN: ${DOMAIN:?set DOMAIN in .env}
+      PUBLIC_APP_URL: https://${DOMAIN}
+      RUSENDER_API_KEY: ${RUSENDER_API_KEY:-rs_ck_v1_placeholder}
+      RUSENDER_KEY_ID: ${RUSENDER_KEY_ID:-0}
+      RUSENDER_FROM_EMAIL: ${RUSENDER_FROM_EMAIL:-noreply@example.com}
+      RUSENDER_FROM_NAME: ${RUSENDER_FROM_NAME:-Домашняя карта желаний}
+      RUSENDER_API_BASE: ${RUSENDER_API_BASE:-https://api.rusender.ru/api/v1/external-mails/send}
+      RESET_TOKEN_TTL_MIN: ${RESET_TOKEN_TTL_MIN:-60}
     volumes:
       - uploads_data:/app/uploads
     depends_on:

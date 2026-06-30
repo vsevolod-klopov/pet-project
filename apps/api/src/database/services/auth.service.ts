@@ -5,11 +5,16 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { createHash, randomBytes } from 'crypto';
 import * as jwt from 'jsonwebtoken';
+import { IsNull, MoreThan, Repository } from 'typeorm';
 import { FamilyService } from '../../catalog/family.service';
-import { UserService } from './user.service';
+import { MailService } from '../../mail/mail.service';
+import { PasswordResetToken } from '../entities/password-reset-token.entity';
 import { User } from '../entities/user.entity';
 import { toPublicUser, PublicUser } from '../user.mapper';
+import { UserService } from './user.service';
 
 export type FamilyMode = 'create' | 'join';
 
@@ -18,6 +23,20 @@ const JWT_REFRESH_SECRET =
   process.env.JWT_REFRESH_SECRET || 'your-refresh-secret-key';
 const ACCESS_TOKEN_EXPIRY = '15m';
 const REFRESH_TOKEN_EXPIRY = '30d';
+const RESET_TOKEN_TTL_MIN = Number(process.env.RESET_TOKEN_TTL_MIN || 60);
+
+function hashToken(raw: string): string {
+  return createHash('sha256').update(raw).digest('hex');
+}
+
+function getPublicAppUrl(): string {
+  const domain = process.env.DOMAIN?.trim();
+  if (domain && domain !== 'example.com') {
+    const protocol = domain.includes('localhost') ? 'http' : 'https';
+    return `${protocol}://${domain}`;
+  }
+  return (process.env.PUBLIC_APP_URL || 'http://localhost:8080').replace(/\/$/, '');
+}
 
 interface TokenPayload {
   email: string;
@@ -46,6 +65,9 @@ export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly familyService: FamilyService,
+    private readonly mailService: MailService,
+    @InjectRepository(PasswordResetToken)
+    private readonly resetTokenRepo: Repository<PasswordResetToken>,
   ) {}
 
   private generateTokens(payload: TokenPayload): Tokens {
@@ -156,5 +178,109 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
     return toPublicUser(user);
+  }
+
+  /** Always returns the same message — do not reveal whether email exists. */
+  async requestPasswordReset(email: string): Promise<{ message: string }> {
+    const normalized = email?.trim();
+    const genericMessage =
+      'Если этот email зарегистрирован, мы отправили ссылку для сброса пароля.';
+
+    if (!normalized) {
+      return { message: genericMessage };
+    }
+
+    const user = await this.userService.findByEmail(normalized);
+    if (!user) {
+      return { message: genericMessage };
+    }
+
+    const rawToken = randomBytes(32).toString('hex');
+    const tokenHash = hashToken(rawToken);
+    const ttlMin = Number.isFinite(RESET_TOKEN_TTL_MIN) ? RESET_TOKEN_TTL_MIN : 60;
+    const expiresAt = new Date(Date.now() + ttlMin * 60 * 1000);
+
+    await this.resetTokenRepo.update(
+      { userId: user.id, usedAt: IsNull() },
+      { usedAt: new Date() },
+    );
+
+    await this.resetTokenRepo.save(
+      this.resetTokenRepo.create({
+        userId: user.id,
+        tokenHash,
+        expiresAt,
+      }),
+    );
+
+    const resetLink = `${getPublicAppUrl()}/pages/auth/reset-password?token=${encodeURIComponent(rawToken)}`;
+
+    try {
+      await this.mailService.sendPasswordResetEmail({
+        toEmail: user.email,
+        toName: user.name,
+        resetLink,
+        idempotencyKey: `reset-${user.id}-${Date.now()}`,
+      });
+    } catch {
+      // Do not leak mail errors to client — still return generic success.
+    }
+
+    return { message: genericMessage };
+  }
+
+  async validateResetToken(token: string): Promise<{ valid: boolean }> {
+    if (!token?.trim()) {
+      return { valid: false };
+    }
+    const record = await this.findValidResetToken(token);
+    return { valid: !!record };
+  }
+
+  async resetPassword(
+    token: string,
+    passwordHash: string,
+  ): Promise<{ message: string }> {
+    if (!token?.trim() || !passwordHash) {
+      throw new BadRequestException('Token and passwordHash are required');
+    }
+
+    const record = await this.findValidResetToken(token);
+    if (!record) {
+      throw new BadRequestException(
+        'Ссылка недействительна или истекла. Запросите сброс пароля снова.',
+      );
+    }
+
+    const updated = await this.userService.update(record.userId, {
+      passwordHash,
+    });
+    if (!updated) {
+      throw new NotFoundException('User not found');
+    }
+
+    record.usedAt = new Date();
+    await this.resetTokenRepo.save(record);
+
+    await this.resetTokenRepo.update(
+      { userId: record.userId, usedAt: IsNull() },
+      { usedAt: new Date() },
+    );
+
+    return { message: 'Пароль успешно обновлён' };
+  }
+
+  private async findValidResetToken(
+    rawToken: string,
+  ): Promise<PasswordResetToken | null> {
+    const tokenHash = hashToken(rawToken.trim());
+    const now = new Date();
+    return this.resetTokenRepo.findOne({
+      where: {
+        tokenHash,
+        usedAt: IsNull(),
+        expiresAt: MoreThan(now),
+      },
+    });
   }
 }

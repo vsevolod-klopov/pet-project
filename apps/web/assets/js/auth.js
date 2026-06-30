@@ -142,6 +142,49 @@ async function checkInviteCode(code) {
 }
 
 /**
+ * Request password reset email (always generic success from API)
+ * @param {string} email
+ * @returns {Promise<{ message: string }>}
+ */
+async function requestPasswordReset(email) {
+  return apiRequest(API_CONFIG.endpoints.forgotPassword, {
+    email: String(email || '').trim(),
+  });
+}
+
+/**
+ * Check if reset token from email link is still valid
+ * @param {string} token
+ * @returns {Promise<{ valid: boolean }>}
+ */
+async function validateResetToken(token) {
+  const normalized = String(token || '').trim();
+  if (!normalized) {
+    return { valid: false };
+  }
+  const url = `${API_CONFIG.baseURL}${API_CONFIG.endpoints.resetPasswordValidate}?token=${encodeURIComponent(normalized)}`;
+  const response = await fetch(url, { method: 'GET', mode: 'cors' });
+  if (!response.ok) {
+    return { valid: false };
+  }
+  return response.json();
+}
+
+/**
+ * Set new password using token from email link
+ * @param {string} token
+ * @param {string} password
+ * @returns {Promise<{ message: string }>}
+ */
+async function submitPasswordReset(token, password) {
+  const passwordHash = await hashPassword(password);
+  return apiRequest(API_CONFIG.endpoints.resetPassword, {
+    token: String(token || '').trim(),
+    passwordHash,
+  });
+}
+
+/**
  * Login user
  * @param {string} email - User email
  * @param {string} password - Plain text password
