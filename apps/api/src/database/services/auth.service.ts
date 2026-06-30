@@ -121,7 +121,19 @@ export class AuthService {
 
   async login(email: string, passwordHash: string): Promise<AuthResponse> {
     const user = await this.validateUser(email, passwordHash);
-    return this.buildAuthResponse(user);
+    const response = this.buildAuthResponse(user);
+
+    const family = await this.familyService.getFamilySummaryForUser(user.id);
+    if (family) {
+      response.family = {
+        id: family.id,
+        name: family.name,
+        role: family.role,
+        inviteCode: family.inviteCode,
+      };
+    }
+
+    return response;
   }
 
   refresh(refreshToken: string): Tokens {

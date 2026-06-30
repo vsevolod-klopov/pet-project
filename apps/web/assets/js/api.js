@@ -26,6 +26,67 @@ async function loadFamilyInvite() {
   return response.json();
 }
 
+async function loadUserProfile() {
+  const response = await authenticatedFetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.profile}`);
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.message || `Failed to load profile (${response.status})`);
+  }
+  return response.json();
+}
+
+async function updateUserProfile(data) {
+  const response = await authenticatedFetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.profile}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw { status: response.status, message: error.message || 'Failed to update profile', data: error };
+  }
+  return response.json();
+}
+
+async function uploadAvatarImage(file) {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  const response = await authenticatedUpload(
+    `${API_CONFIG.baseURL}${API_CONFIG.endpoints.uploadAvatarImage}`,
+    formData,
+  );
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw { status: response.status, message: error.message || 'Failed to upload avatar', data: error };
+  }
+
+  return response.json();
+}
+
+async function loadFamilySummary() {
+  const response = await authenticatedFetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.family}`);
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.message || `Failed to load family (${response.status})`);
+  }
+  return response.json();
+}
+
+async function updateFamily(data) {
+  const response = await authenticatedFetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.family}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw { status: response.status, message: error.message || 'Failed to update family', data: error };
+  }
+  return response.json();
+}
+
 async function loadMyWishes() {
   const response = await authenticatedFetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.wishesMine}`);
   if (!response.ok) {
@@ -209,6 +270,12 @@ async function refreshAppDataIfNeeded() {
   }
   if (typeof renderGoalDetail === 'function') {
     renderGoalDetail();
+  }
+  if (typeof initHeaderNav === 'function') {
+    initHeaderNav();
+  }
+  if (typeof renderProfilePage === 'function') {
+    renderProfilePage();
   }
 
   return result;

@@ -8,6 +8,7 @@ import { GoalImage } from './entities/goal-image.entity';
 import { GoalStep } from './entities/goal-step.entity';
 import { GoalTag } from './entities/goal-tag.entity';
 import { Wish } from './entities/wish.entity';
+import { User } from '../database/entities/user.entity';
 import { FamilyService } from './family.service';
 import { toPublicGoalStep } from './goal-step.mapper';
 
@@ -22,6 +23,7 @@ export class CatalogService {
     @InjectRepository(GoalDescriptionBlock)
     private readonly goalDescriptions: Repository<GoalDescriptionBlock>,
     @InjectRepository(Wish) private readonly wishes: Repository<Wish>,
+    @InjectRepository(User) private readonly users: Repository<User>,
     private readonly familyService: FamilyService,
   ) {}
 
@@ -121,6 +123,17 @@ export class CatalogService {
 
     const membersByUserId = new Map(members.map((member) => [member.userId, member]));
 
+    const userIds = members.map((member) => member.userId);
+    const users = userIds.length
+      ? await this.users.find({
+          where: { id: In(userIds) },
+          select: ['id', 'avatarUrl'],
+        })
+      : [];
+    const avatarByUserId = new Map(
+      users.map((user) => [user.id, user.avatarUrl ?? null]),
+    );
+
     return {
       goals: goals.map((goal) => ({
         id: goal.legacyKey || goal.id,
@@ -153,6 +166,7 @@ export class CatalogService {
         gradient: member.gradient,
         subtitle: member.subtitle,
         description: member.description,
+        avatarUrl: avatarByUserId.get(member.userId) ?? null,
       })),
       wishlists,
     };

@@ -37,6 +37,6 @@ import { WishService } from './wish.service';
   ],
   controllers: [CatalogController, WishController, UploadController, GoalController],
   providers: [CatalogService, CatalogSeedService, FamilyService, WishService, GoalService, UploadService],
-  exports: [FamilyService, CatalogService, WishService, GoalService],
+  exports: [FamilyService, CatalogService, WishService, GoalService, UploadService],
 })
 export class CatalogModule {}

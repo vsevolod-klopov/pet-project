@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -26,6 +27,13 @@ export interface FamilySetupResult {
   inviteCode?: string;
 }
 
+export interface FamilySummary {
+  id: string;
+  name: string;
+  role: 'owner' | 'member';
+  inviteCode?: string;
+}
+
 @Injectable()
 export class FamilyService {
   constructor(
@@ -36,6 +44,67 @@ export class FamilyService {
 
   async findMemberByUserId(userId: string): Promise<FamilyMember | null> {
     return this.members.findOne({ where: { userId } });
+  }
+
+  async getFamilySummaryForUser(userId: string): Promise<FamilySummary | null> {
+    const member = await this.findMemberByUserId(userId);
+    if (!member) {
+      return null;
+    }
+
+    const family = await this.families.findOne({ where: { id: member.familyId } });
+    if (!family) {
+      return null;
+    }
+
+    const role = member.role === 'owner' ? 'owner' : 'member';
+    const summary: FamilySummary = {
+      id: family.id,
+      name: family.name,
+      role,
+    };
+
+    if (role === 'owner') {
+      summary.inviteCode = await this.ensureFamilyInviteCode(family.id, family.ownerId);
+    }
+
+    return summary;
+  }
+
+  async renameFamily(userId: string, rawName: string): Promise<FamilySummary> {
+    const member = await this.findMemberByUserId(userId);
+    if (!member) {
+      throw new NotFoundException('User is not a member of any family');
+    }
+    if (member.role !== 'owner') {
+      throw new ForbiddenException('Only the family owner can rename the family');
+    }
+
+    const name = rawName.trim();
+    if (!name || name.length > 100) {
+      throw new BadRequestException('Family name must be between 1 and 100 characters');
+    }
+
+    const family = await this.families.findOne({ where: { id: member.familyId } });
+    if (!family) {
+      throw new NotFoundException('Family not found');
+    }
+
+    family.name = name;
+    await this.families.save(family);
+
+    return { id: family.id, name: family.name, role: 'owner' };
+  }
+
+  async syncMemberDisplayName(userId: string, name: string): Promise<void> {
+    const member = await this.findMemberByUserId(userId);
+    if (!member) {
+      return;
+    }
+
+    member.displayName = name.slice(0, 100);
+    member.initials = this.buildInitials(name);
+    await this.members.save(member);
   }
 
   async createFamilyForUser(

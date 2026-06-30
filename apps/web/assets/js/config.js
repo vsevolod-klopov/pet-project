@@ -47,12 +47,14 @@ const API_CONFIG = {
     refresh: '/auth/refresh',
     inviteCheck: '/auth/invite',
     data: '/api/data',
+    family: '/api/family',
     familyInvite: '/api/family/invite',
     wishesMine: '/api/wishes/mine',
     wishes: '/api/wishes',
     uploadWishImage: '/api/uploads/wish-image',
     goals: '/api/goals',
     uploadGoalImage: '/api/uploads/goal-image',
+    uploadAvatarImage: '/api/uploads/avatar-image',
     profile: '/api/user/profile',
   },
 };
@@ -61,14 +63,15 @@ const API_CONFIG = {
  * Application routes (root-absolute paths)
  */
 const APP_ROUTES = {
-  home: '/index.html',
-  goals: '/pages/goals.html',
-  goalDetail: '/pages/goal-detail.html',
-  family: '/pages/family.html',
-  wishlist: '/pages/wishlist.html',
-  myWishlist: '/pages/my-wishlist.html',
-  login: '/pages/auth/login.html',
-  register: '/pages/auth/register.html',
+  home: '/',
+  goals: '/pages/goals',
+  goalDetail: '/pages/goal-detail',
+  family: '/pages/family',
+  wishlist: '/pages/wishlist',
+  myWishlist: '/pages/my-wishlist',
+  profile: '/pages/profile',
+  login: '/pages/auth/login',
+  register: '/pages/auth/register',
 };
 
 /**
@@ -117,6 +120,7 @@ const INVITE_QUERY_KEY = 'invite';
  */
 const PUBLIC_ROUTES = new Set([
   '/',
+  '/index',
   '/index.html',
   APP_ROUTES.login,
   APP_ROUTES.register,

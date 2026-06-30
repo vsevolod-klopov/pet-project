@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Профиль · Домашняя карта желаний</title>
+    <link rel="stylesheet" href="../assets/css/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell" data-profile-page>
+      <header class="app-header">
+        <div class="header-inner">
+          <a href="/" class="logo">
+            <div class="logo-mark">W</div>
+            <div>
+              <div class="logo-text-main">Домашняя карта желаний</div>
+              <div class="logo-text-sub">Общие цели и личные хотелки</div>
+            </div>
+          </a>
+          <nav class="nav" aria-label="Основная навигация">
+            <a class="nav-link" href="/pages/goals">Общие цели</a>
+            <a class="nav-link" href="/pages/family">Список семьи</a>
+            <a class="nav-link" href="/pages/my-wishlist">Мои хотелки</a>
+          </nav>
+          <button class="menu-toggle" aria-label="Открыть меню">
+            <span></span>
+          </button>
+        </div>
+      </header>
+
+      <div class="mobile-nav-overlay" hidden></div>
+      <aside class="mobile-nav" hidden>
+        <div class="mobile-nav-top">
+          <div class="mobile-nav-title">Меню</div>
+          <button class="mobile-nav-close" type="button" data-mobile-nav-close aria-label="Закрыть">
+            ×
+          </button>
+        </div>
+      </aside>
+
+      <main class="app-main">
+        <section class="page">
+          <header class="page-header">
+            <div class="page-title-group">
+              <div class="page-eyebrow">Аккаунт</div>
+              <h1 class="page-title">Профиль</h1>
+              <p class="page-subtitle">
+                Имя, аватар и данные вашей семьи. Изменения отразятся в списке семьи.
+              </p>
+            </div>
+          </header>
+
+          <section class="stack-lg profile-layout" aria-label="Настройки профиля">
+            <div class="profile-card">
+              <div class="profile-hero">
+                <div class="profile-avatar-wrap" data-profile-avatar></div>
+                <div class="profile-hero-text">
+                  <h2 class="profile-display-name" data-profile-name-display>—</h2>
+                  <p class="profile-display-email" data-profile-email>—</p>
+                </div>
+              </div>
+
+              <dl class="profile-meta">
+                <div class="profile-meta-row">
+                  <dt>Дата регистрации</dt>
+                  <dd data-profile-created>—</dd>
+                </div>
+                <div class="profile-meta-row">
+                  <dt>Семья</dt>
+                  <dd data-profile-family>—</dd>
+                </div>
+                <div class="profile-meta-row">
+                  <dt>Роль</dt>
+                  <dd data-profile-role>—</dd>
+                </div>
+              </dl>
+            </div>
+
+            <div class="form-card profile-edit-card">
+              <h2 class="section-title">Редактирование</h2>
+              <form class="form-grid" data-profile-form>
+                <div class="form-field">
+                  <label class="form-label form-label--required" for="profile-name">Имя</label>
+                  <input
+                    class="form-input"
+                    id="profile-name"
+                    type="text"
+                    name="name"
+                    data-profile-name-input
+                    required
+                    maxlength="100"
+                    placeholder="Как к вам обращаться"
+                  />
+                  <p class="form-helper">Отображается в списке семьи и в шапке сайта.</p>
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label">Аватар</label>
+                  <label class="file-picker">
+                    <input
+                      class="file-picker-input"
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      data-profile-avatar-file
+                    />
+                    <span class="file-picker-face">
+                      <span class="file-picker-icon" aria-hidden="true">↑</span>
+                      <span class="file-picker-text">Загрузить фото</span>
+                    </span>
+                  </label>
+                  <p class="form-helper">JPEG, PNG, WebP или GIF, до 5 МБ.</p>
+                </div>
+
+                <p class="form-field-error" data-profile-form-error hidden></p>
+
+                <div class="form-actions">
+                  <button class="btn btn--primary" type="submit">Сохранить имя</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="form-card profile-family-card" data-profile-family-card hidden>
+              <h2 class="section-title">Управление семьёй</h2>
+              <p class="section-caption">Название видят все участники семьи.</p>
+              <form class="form-grid" data-profile-family-form>
+                <div class="form-field">
+                  <label class="form-label form-label--required" for="profile-family-name">Название семьи</label>
+                  <input
+                    class="form-input"
+                    id="profile-family-name"
+                    type="text"
+                    name="familyName"
+                    data-profile-family-name-input
+                    required
+                    maxlength="100"
+                    placeholder="Например: Семья Ивановых"
+                  />
+                </div>
+                <p class="form-field-error" data-profile-family-error hidden></p>
+                <div class="form-actions">
+                  <button class="btn btn--primary" type="submit">Сохранить название</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="form-card profile-invite-card" data-profile-invite hidden>
+              <h2 class="section-title">Пригласить в семью</h2>
+              <p class="section-caption">
+                Отправьте ссылку или код — человек зарегистрируется и присоединится к вашей семье.
+              </p>
+
+              <div class="form-field">
+                <label class="form-label" for="profile-invite-link">Ссылка для регистрации</label>
+                <div class="share-copy-row">
+                  <input
+                    class="form-input"
+                    id="profile-invite-link"
+                    type="text"
+                    readonly
+                    data-profile-invite-link
+                  />
+                  <button type="button" class="btn btn--ghost" data-profile-copy-link>Копировать</button>
+                </div>
+              </div>
+
+              <div class="share-code-block">
+                <div class="form-label">Код для подключения</div>
+                <div class="share-code-display" data-profile-invite-code>------</div>
+                <button type="button" class="btn btn--primary" data-profile-copy-code>
+                  Копировать код
+                </button>
+              </div>
+
+              <p class="form-helper" data-profile-invite-expires hidden></p>
+              <p class="form-field-error" data-profile-invite-error hidden></p>
+            </div>
+
+            <div class="profile-actions">
+              <button type="button" class="btn btn--ghost btn--danger" data-profile-logout>
+                Выйти из аккаунта
+              </button>
+            </div>
+          </section>
+        </section>
+      </main>
+
+      <footer class="app-footer">
+        Домашняя карта желаний · Общие цели и личные хотелки
+      </footer>
+    </div>
+
+    <script src="/assets/js/config.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/format.js"></script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/data.js"></script>
+    <script src="/assets/js/app.js"></script>
+  </body>
+</html>

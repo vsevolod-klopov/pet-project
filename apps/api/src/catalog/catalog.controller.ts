@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
 import { GetUser } from '../common/decorators/get-user.decorator';
 import { JwtGuard } from '../database/guards/jwt.guard';
 import { CatalogService } from './catalog.service';
@@ -26,5 +26,17 @@ export class CatalogController {
   @UseGuards(JwtGuard)
   getFamilyInvite(@GetUser() user: AuthUser) {
     return this.familyService.getFamilyInviteForUser(user.userId);
+  }
+
+  @Get('family')
+  @UseGuards(JwtGuard)
+  getFamily(@GetUser() user: AuthUser) {
+    return this.familyService.getFamilySummaryForUser(user.userId);
+  }
+
+  @Patch('family')
+  @UseGuards(JwtGuard)
+  renameFamily(@GetUser() user: AuthUser, @Body() body: { name?: string }) {
+    return this.familyService.renameFamily(user.userId, body?.name ?? '');
   }
 }

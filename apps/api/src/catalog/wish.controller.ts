@@ -140,4 +140,32 @@ export class UploadController {
       alt: file.originalname,
     };
   }
+
+  @Post('avatar-image')
+  @UseGuards(JwtGuard)
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: diskStorage({
+        destination: (_req, _file, cb) => {
+          const dir = process.env.UPLOAD_DIR
+            ? join(process.env.UPLOAD_DIR, 'avatars')
+            : join(process.cwd(), 'uploads', 'avatars');
+          mkdirSync(dir, { recursive: true });
+          cb(null, dir);
+        },
+        filename: (_req, file, cb) => {
+          const ext = extname(file.originalname).toLowerCase();
+          cb(null, `${randomUUID()}${ext}`);
+        },
+      }),
+      limits: { fileSize: 5 * 1024 * 1024 },
+    }),
+  )
+  uploadAvatarImage(@UploadedFile() file: Express.Multer.File) {
+    this.uploadService.assertAllowedImage(file);
+    return {
+      url: this.uploadService.toPublicAvatarUrl(file.filename),
+      alt: file.originalname,
+    };
+  }
 }

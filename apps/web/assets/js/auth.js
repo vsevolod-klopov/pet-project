@@ -203,6 +203,33 @@ function getUser() {
 }
 
 /**
+ * Merge partial user data into localStorage session
+ * @param {object} partial
+ */
+function updateStoredUser(partial) {
+  const user = getUser();
+  if (!user) return null;
+  const updated = { ...user, ...partial };
+  localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(updated));
+  return updated;
+}
+
+/**
+ * Merge/replace family data in localStorage session
+ * @param {object|null} family
+ */
+function updateStoredFamily(family) {
+  if (!family) {
+    localStorage.removeItem(STORAGE_KEYS.family);
+    return null;
+  }
+  const current = getFamily() || {};
+  const updated = { ...current, ...family };
+  localStorage.setItem(STORAGE_KEYS.family, JSON.stringify(updated));
+  return updated;
+}
+
+/**
  * Check if user is authenticated
  * @returns {boolean} - True if user has valid tokens
  */

@@ -1015,31 +1015,194 @@ function mobileNavLinkAttrs(href) {
   return isNavPathActive(href) ? ' aria-current="page"' : "";
 }
 
+function formatDateRu(iso) {
+  if (!iso) return "—";
+  try {
+    return new Date(iso).toLocaleDateString("ru-RU", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  } catch {
+    return "—";
+  }
+}
+
+function resolveMemberAvatarUrl(member) {
+  if (!member) return null;
+  const user = typeof getUser === "function" ? getUser() : null;
+  if (user?.id && member.userId === user.id && user.avatarUrl) {
+    return user.avatarUrl;
+  }
+  return member.avatarUrl || null;
+}
+
+function buildMemberAvatarHtml(member, baseClass) {
+  const name = member?.name || "Участник";
+  const avatarUrl = resolveMemberAvatarUrl(member);
+
+  if (avatarUrl) {
+    return `<img class="${escapeHtml(baseClass)} user-avatar-img" src="${escapeHtml(resolveMediaUrl(avatarUrl))}" alt="${escapeHtml(name)}" loading="lazy" />`;
+  }
+
+  const initials = member?.initials || buildUserInitials(name);
+  if (baseClass.includes("mobile-nav-sub-avatar")) {
+    return `<span class="${escapeHtml(baseClass)}">${escapeHtml(initials)}</span>`;
+  }
+
+  const altClass = member?.gradient === "alt" ? " avatar-circle--alt" : "";
+  const circleClass = baseClass.includes("avatar-circle") ? baseClass : `${baseClass} avatar-circle${altClass}`;
+  return `<div class="${escapeHtml(circleClass)}">${escapeHtml(initials)}</div>`;
+}
+
+function buildUserAvatarHtml(user, member, baseClass) {
+  return buildMemberAvatarHtml(
+    {
+      ...(member || {}),
+      name: user?.name || member?.name,
+      userId: user?.id || member?.userId,
+      avatarUrl: user?.avatarUrl || member?.avatarUrl,
+      initials: member?.initials,
+      gradient: member?.gradient,
+    },
+    baseClass,
+  );
+}
+
+const HEADER_LOGO_HTML = `
+  <a href="/" class="logo">
+    <div class="logo-mark">W</div>
+    <div>
+      <div class="logo-text-main">Домашняя карта желаний</div>
+      <div class="logo-text-sub">Общие цели и личные хотелки</div>
+    </div>
+  </a>
+`;
+
+let userMenuOutsideClickBound = false;
+
+async function requestLogout() {
+  const confirmed = await confirmDelete({
+    title: "Выйти из аккаунта?",
+    message: "Вы сможете войти снова в любой момент.",
+    confirmLabel: "Выйти",
+  });
+  if (confirmed && typeof logout === "function") {
+    logout();
+  }
+}
+
+function bindUserMenu(container) {
+  if (!container) return;
+
+  const toggle = container.querySelector("[data-user-menu-toggle]");
+  const dropdown = container.querySelector("[data-user-menu-dropdown]");
+  const logoutBtn = container.querySelector("[data-logout-btn]");
+
+  if (!toggle || !dropdown) return;
+
+  function closeMenu() {
+    dropdown.hidden = true;
+    toggle.setAttribute("aria-expanded", "false");
+  }
+
+  toggle.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isOpen = !dropdown.hidden;
+    if (isOpen) {
+      closeMenu();
+      return;
+    }
+    dropdown.hidden = false;
+    toggle.setAttribute("aria-expanded", "true");
+  });
+
+  logoutBtn?.addEventListener("click", async () => {
+    closeMenu();
+    await requestLogout();
+  });
+
+  if (!userMenuOutsideClickBound) {
+    userMenuOutsideClickBound = true;
+    document.addEventListener("click", (e) => {
+      document.querySelectorAll("[data-user-menu]").forEach((menu) => {
+        if (menu.contains(e.target)) return;
+        const panel = menu.querySelector("[data-user-menu-dropdown]");
+        const btn = menu.querySelector("[data-user-menu-toggle]");
+        if (panel) panel.hidden = true;
+        if (btn) btn.setAttribute("aria-expanded", "false");
+      });
+    });
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+      document.querySelectorAll("[data-user-menu]").forEach((menu) => {
+        const panel = menu.querySelector("[data-user-menu-dropdown]");
+        const btn = menu.querySelector("[data-user-menu-toggle]");
+        if (panel) panel.hidden = true;
+        if (btn) btn.setAttribute("aria-expanded", "false");
+      });
+    });
+  }
+}
+
 function renderHeaderBrand() {
-  const logo = document.querySelector(".logo");
-  if (!logo) return;
+  const inner = document.querySelector(".header-inner");
+  if (!inner) return;
+
+  inner.querySelector(".logo, .header-user-menu")?.remove();
 
   const authed = typeof isAuthenticated === "function" && isAuthenticated();
-  if (!authed) return;
+  const nav = inner.querySelector(".nav, .menu-toggle");
+
+  if (!authed) {
+    if (nav) {
+      nav.insertAdjacentHTML("beforebegin", HEADER_LOGO_HTML);
+    } else {
+      inner.insertAdjacentHTML("afterbegin", HEADER_LOGO_HTML);
+    }
+    return;
+  }
 
   const user = typeof getUser === "function" ? getUser() : null;
   const member = getFamilyMemberForCurrentUser();
+  const family = typeof getFamily === "function" ? getFamily() : null;
   const name = user?.name || "Аккаунт";
-  const initials = member?.initials || buildUserInitials(name);
-  const avatarClass =
-    member?.gradient === "alt" ? "avatar-circle avatar-circle--alt" : "avatar-circle";
+  const familyLabel = family?.name || member?.subtitle || "Ваша семья";
+  const avatarHtml = buildUserAvatarHtml(user, member, "header-user-avatar");
 
-  const brand = document.createElement("div");
-  brand.className = "header-brand header-brand--user";
-  brand.setAttribute("aria-label", `Вы вошли как ${name}`);
-  brand.innerHTML = `
-    <div class="${avatarClass} header-user-avatar">${escapeHtml(initials)}</div>
-    <div class="header-user-text">
-      <div class="header-user-name">${escapeHtml(name)}</div>
-      <div class="header-user-sub">Домашняя карта желаний</div>
+  const menuHtml = `
+    <div class="header-user-menu" data-user-menu>
+      <button
+        type="button"
+        class="header-brand header-brand--user header-user-menu-toggle"
+        data-user-menu-toggle
+        aria-haspopup="menu"
+        aria-expanded="false"
+        aria-label="Меню аккаунта: ${escapeHtml(name)}"
+      >
+        ${avatarHtml}
+        <div class="header-user-text">
+          <div class="header-user-name">${escapeHtml(name)}</div>
+          <div class="header-user-sub">${escapeHtml(familyLabel)}</div>
+        </div>
+        <span class="header-user-chevron" aria-hidden="true">▾</span>
+      </button>
+      <div class="user-menu-dropdown" data-user-menu-dropdown role="menu" hidden>
+        <a class="user-menu-item" role="menuitem" href="${APP_ROUTES.profile}">Профиль</a>
+        <div class="user-menu-divider" role="separator"></div>
+        <button type="button" class="user-menu-item user-menu-item--danger" role="menuitem" data-logout-btn>Выйти</button>
+      </div>
     </div>
   `;
-  logo.replaceWith(brand);
+
+  if (nav) {
+    nav.insertAdjacentHTML("beforebegin", menuHtml);
+  } else {
+    inner.insertAdjacentHTML("afterbegin", menuHtml);
+  }
+
+  bindUserMenu(inner.querySelector("[data-user-menu]"));
 }
 
 function renderDesktopNav() {
@@ -1053,11 +1216,7 @@ function renderDesktopNav() {
       <a class="${navLinkClass(APP_ROUTES.goals)}" href="${APP_ROUTES.goals}"${navLinkAttrs(APP_ROUTES.goals)}>Общие цели</a>
       <a class="${navLinkClass(APP_ROUTES.family)}" href="${APP_ROUTES.family}"${navLinkAttrs(APP_ROUTES.family)}>Список семьи</a>
       <a class="${navLinkClass(APP_ROUTES.myWishlist)}" href="${APP_ROUTES.myWishlist}"${navLinkAttrs(APP_ROUTES.myWishlist)}>Мои хотелки</a>
-      <button type="button" class="nav-link" data-logout-btn>Выйти</button>
     `;
-    nav.querySelector("[data-logout-btn]")?.addEventListener("click", () => {
-      if (typeof logout === "function") logout();
-    });
     return;
   }
 
@@ -1067,20 +1226,29 @@ function renderDesktopNav() {
   `;
 }
 
+function wishlistLinkForMember(member) {
+  // Свой список открываем на странице «Мои хотелки», чужой — в общем просмотре по id.
+  const user = typeof getUser === "function" ? getUser() : null;
+  if (user?.id && member?.userId === user.id) {
+    return APP_ROUTES.myWishlist;
+  }
+  return routeUrl(APP_ROUTES.wishlist, { id: member.id });
+}
+
 function renderMobileNavFamilySection() {
   const family = window.APP_DATA?.family ?? [];
   if (!family.length) return "";
 
   const links = family
     .map((member) => {
-      const href = routeUrl(APP_ROUTES.wishlist, { id: member.id });
+      const href = wishlistLinkForMember(member);
       const avatarClass =
         member.gradient === "alt"
           ? "mobile-nav-sub-avatar mobile-nav-sub-avatar--alt"
           : "mobile-nav-sub-avatar";
       return `
         <a class="mobile-nav-sub-link" href="${escapeHtml(href)}">
-          <span class="${avatarClass}">${escapeHtml(member.initials || buildUserInitials(member.name))}</span>
+          ${buildMemberAvatarHtml(member, avatarClass)}
           <span class="mobile-nav-sub-text">${escapeHtml(member.name)}</span>
         </a>
       `;
@@ -1105,23 +1273,24 @@ function renderMobileNav() {
   const authed = typeof isAuthenticated === "function" && isAuthenticated();
   const user = typeof getUser === "function" ? getUser() : null;
   const member = getFamilyMemberForCurrentUser();
+  const family = typeof getFamily === "function" ? getFamily() : null;
   const name = user?.name || "Аккаунт";
-  const initials = member?.initials || buildUserInitials(name);
-  const avatarClass =
-    member?.gradient === "alt" ? "avatar-circle avatar-circle--alt" : "avatar-circle";
+  const familyLabel = family?.name || member?.subtitle || "Ваша семья";
+  const avatarHtml = buildUserAvatarHtml(user, member, "mobile-nav-user-avatar");
 
   let bodyHtml = "";
 
   if (authed) {
     bodyHtml = `
       <div class="mobile-nav-body">
-        <div class="mobile-nav-user-card">
-          <div class="${avatarClass} mobile-nav-user-avatar">${escapeHtml(initials)}</div>
+        <a class="mobile-nav-user-card mobile-nav-user-card--link" href="${APP_ROUTES.profile}">
+          ${avatarHtml}
           <div class="mobile-nav-user-text">
             <div class="mobile-nav-user-name">${escapeHtml(name)}</div>
-            <div class="mobile-nav-user-meta">${escapeHtml(member?.subtitle || "Ваша семья")}</div>
+            <div class="mobile-nav-user-meta">${escapeHtml(familyLabel)}</div>
           </div>
-        </div>
+          <span class="mobile-nav-user-chevron" aria-hidden="true">›</span>
+        </a>
         <nav class="mobile-nav-links" aria-label="Навигация (мобильная)">
           <a class="${mobileNavLinkClass(APP_ROUTES.goals)}" href="${APP_ROUTES.goals}"${mobileNavLinkAttrs(APP_ROUTES.goals)}>Общие цели</a>
           <a class="${mobileNavLinkClass(APP_ROUTES.family)}" href="${APP_ROUTES.family}"${mobileNavLinkAttrs(APP_ROUTES.family)}>Список семьи</a>
@@ -1155,12 +1324,12 @@ function renderMobileNav() {
   panel.querySelectorAll(":scope > :not(.mobile-nav-top)").forEach((node) => node.remove());
   top.insertAdjacentHTML("afterend", bodyHtml);
 
-  panel.querySelector("[data-logout-btn-mobile]")?.addEventListener("click", () => {
+  panel.querySelector("[data-logout-btn-mobile]")?.addEventListener("click", async () => {
     closeMobileNavPanel();
-    if (typeof logout === "function") logout();
+    await requestLogout();
   });
 
-  panel.querySelectorAll("a.mobile-nav-link, a.mobile-nav-sub-link").forEach((link) => {
+  panel.querySelectorAll("a.mobile-nav-link, a.mobile-nav-sub-link, a.mobile-nav-user-card--link").forEach((link) => {
     link.addEventListener("click", () => closeMobileNavPanel());
   });
 }
@@ -1644,11 +1813,11 @@ function renderFamilyList() {
       const avatarClass = p.gradient === "alt" ? "avatar-circle avatar-circle--alt" : "avatar-circle";
       const wishlistCount = (window.APP_DATA?.wishlists?.[p.id] ?? []).length;
       return `
-        <a href="${routeUrl(APP_ROUTES.wishlist, { id: p.id })}" class="card">
+        <a href="${wishlistLinkForMember(p)}" class="card">
           <div class="card-body">
             <div class="card-title-row">
               <div class="avatar-row">
-                <div class="${avatarClass}">${escapeHtml(p.initials)}</div>
+                ${buildMemberAvatarHtml(p, avatarClass)}
                 <div>
                   <div class="avatar-text-main">${escapeHtml(p.name)}</div>
                   <div class="avatar-text-sub">${escapeHtml(p.subtitle || "")}</div>
@@ -2119,6 +2288,254 @@ function initMyWishlistForm() {
   });
 }
 
+function roleLabel(role) {
+  if (role === "owner") return "Владелец семьи";
+  if (role === "member") return "Участник семьи";
+  return "—";
+}
+
+function renderProfilePage() {
+  const root = document.querySelector("[data-profile-page]");
+  if (!root) return;
+
+  const user = typeof getUser === "function" ? getUser() : null;
+  const member = getFamilyMemberForCurrentUser();
+  const family = typeof getFamily === "function" ? getFamily() : null;
+
+  if (!user) return;
+
+  const avatarWrap = document.querySelector("[data-profile-avatar]");
+  if (avatarWrap) {
+    avatarWrap.innerHTML = buildUserAvatarHtml(user, member, "profile-page-avatar");
+  }
+
+  setText("[data-profile-name-display]", user.name || "—");
+  setText("[data-profile-email]", user.email || "—");
+  setText("[data-profile-created]", formatDateRu(user.createdAt));
+  setText("[data-profile-family]", family?.name || "—");
+  setText("[data-profile-role]", roleLabel(family?.role));
+
+  const nameInput = document.querySelector("[data-profile-name-input]");
+  if (nameInput && document.activeElement !== nameInput) {
+    nameInput.value = user.name || "";
+  }
+
+  const familyCard = document.querySelector("[data-profile-family-card]");
+  const familyNameInput = document.querySelector("[data-profile-family-name-input]");
+  if (familyCard) {
+    const isOwner = family?.role === "owner";
+    familyCard.hidden = !isOwner;
+    if (isOwner && familyNameInput && document.activeElement !== familyNameInput) {
+      familyNameInput.value = family?.name || "";
+    }
+  }
+}
+
+async function loadProfileInviteSection() {
+  const section = document.querySelector("[data-profile-invite]");
+  if (!section) return;
+
+  const family = typeof getFamily === "function" ? getFamily() : null;
+  if (family?.role !== "owner") {
+    section.hidden = true;
+    return;
+  }
+
+  section.hidden = false;
+  const linkInput = document.querySelector("[data-profile-invite-link]");
+  const codeEl = document.querySelector("[data-profile-invite-code]");
+  const expiresEl = document.querySelector("[data-profile-invite-expires]");
+  const errorEl = document.querySelector("[data-profile-invite-error]");
+
+  try {
+    const invite = await loadFamilyInvite();
+    const inviteUrl = registerWithInviteUrl(invite.code);
+    if (linkInput) linkInput.value = inviteUrl;
+    if (codeEl) codeEl.textContent = invite.code;
+    if (expiresEl && invite.expiresAt) {
+      expiresEl.hidden = false;
+      expiresEl.textContent = `Код действует до ${formatDateRu(invite.expiresAt)}`;
+    }
+    if (errorEl) {
+      errorEl.hidden = true;
+      errorEl.textContent = "";
+    }
+  } catch (error) {
+    console.error("[Profile invite]", error);
+    if (errorEl) {
+      errorEl.hidden = false;
+      errorEl.textContent = "Не удалось загрузить код приглашения";
+    }
+  }
+}
+
+async function refreshProfileData() {
+  const results = await Promise.allSettled([loadUserProfile(), loadFamilySummary()]);
+
+  const [profileResult, familyResult] = results;
+  if (profileResult.status === "fulfilled" && typeof updateStoredUser === "function") {
+    updateStoredUser(profileResult.value);
+  } else if (profileResult.status === "rejected") {
+    console.warn("[Profile] Could not refresh profile from API", profileResult.reason);
+  }
+
+  if (familyResult.status === "fulfilled" && typeof updateStoredFamily === "function") {
+    updateStoredFamily(familyResult.value);
+  } else if (familyResult.status === "rejected") {
+    console.warn("[Profile] Could not refresh family from API", familyResult.reason);
+  }
+
+  renderProfilePage();
+  loadProfileInviteSection();
+}
+
+function initProfilePage() {
+  const root = document.querySelector("[data-profile-page]");
+  if (!root) return;
+
+  renderProfilePage();
+  loadProfileInviteSection();
+  refreshProfileData();
+
+  const form = document.querySelector("[data-profile-form]");
+  const avatarInput = document.querySelector("[data-profile-avatar-file]");
+  const logoutBtn = document.querySelector("[data-profile-logout]");
+  const copyLinkBtn = document.querySelector("[data-profile-copy-link]");
+  const copyCodeBtn = document.querySelector("[data-profile-copy-code]");
+
+  copyLinkBtn?.addEventListener("click", () => {
+    const input = document.querySelector("[data-profile-invite-link]");
+    if (!input?.value) return;
+    copyTextToClipboard(input.value);
+    flashCopyButton(copyLinkBtn);
+  });
+
+  copyCodeBtn?.addEventListener("click", () => {
+    const codeEl = document.querySelector("[data-profile-invite-code]");
+    if (!codeEl?.textContent) return;
+    copyTextToClipboard(codeEl.textContent.trim());
+    flashCopyButton(copyCodeBtn, "Скопировано");
+  });
+
+  logoutBtn?.addEventListener("click", () => requestLogout());
+
+  const familyForm = document.querySelector("[data-profile-family-form]");
+  familyForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const errorEl = document.querySelector("[data-profile-family-error]");
+    const submitBtn = familyForm.querySelector('button[type="submit"]');
+    const input = familyForm.querySelector("[data-profile-family-name-input]");
+    const name = input?.value?.trim() || "";
+
+    if (errorEl) {
+      errorEl.hidden = true;
+      errorEl.textContent = "";
+    }
+
+    if (!name) {
+      if (errorEl) {
+        errorEl.hidden = false;
+        errorEl.textContent = "Укажите название семьи";
+      }
+      return;
+    }
+
+    submitBtn.disabled = true;
+    const originalLabel = submitBtn.textContent;
+    submitBtn.textContent = "Сохранение...";
+
+    try {
+      const updated = await updateFamily({ name });
+      if (typeof updateStoredFamily === "function") {
+        updateStoredFamily(updated);
+      }
+      await refreshAppDataIfNeeded();
+      renderProfilePage();
+    } catch (error) {
+      console.error("[Profile family]", error);
+      if (errorEl) {
+        errorEl.hidden = false;
+        errorEl.textContent = error.message || "Не удалось сохранить название семьи";
+      }
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalLabel;
+    }
+  });
+
+  avatarInput?.addEventListener("change", async () => {
+    const file = avatarInput.files?.[0];
+    const errorEl = document.querySelector("[data-profile-form-error]");
+    if (!file) return;
+
+    if (errorEl) {
+      errorEl.hidden = true;
+      errorEl.textContent = "";
+    }
+
+    try {
+      const uploaded = await uploadAvatarImage(file);
+      const updated = await updateUserProfile({ avatarUrl: uploaded.url });
+      if (typeof updateStoredUser === "function") {
+        updateStoredUser(updated);
+      }
+      await refreshAppDataIfNeeded();
+      renderProfilePage();
+    } catch (error) {
+      console.error("[Profile avatar]", error);
+      if (errorEl) {
+        errorEl.hidden = false;
+        errorEl.textContent = error.message || "Не удалось загрузить аватар";
+      }
+    } finally {
+      avatarInput.value = "";
+    }
+  });
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const errorEl = document.querySelector("[data-profile-form-error]");
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const nameInput = form.querySelector("[data-profile-name-input]");
+    const name = nameInput?.value?.trim() || "";
+
+    if (errorEl) {
+      errorEl.hidden = true;
+      errorEl.textContent = "";
+    }
+
+    if (!name) {
+      if (errorEl) {
+        errorEl.hidden = false;
+        errorEl.textContent = "Укажите имя";
+      }
+      return;
+    }
+
+    submitBtn.disabled = true;
+    const originalLabel = submitBtn.textContent;
+    submitBtn.textContent = "Сохранение...";
+
+    try {
+      const updated = await updateUserProfile({ name });
+      if (typeof updateStoredUser === "function") {
+        updateStoredUser(updated);
+      }
+      await refreshAppDataIfNeeded();
+      renderProfilePage();
+    } catch (error) {
+      console.error("[Profile save]", error);
+      if (errorEl) {
+        errorEl.hidden = false;
+        errorEl.textContent = error.message || "Не удалось сохранить профиль";
+      }
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalLabel;
+    }
+  });
+}
+
 function initPasswordToggles() {
   document.querySelectorAll("[data-password-toggle]").forEach((btn) => {
     const input = document.getElementById(btn.getAttribute("data-password-toggle"));
@@ -2161,6 +2578,7 @@ async function init() {
   initGoalForm();
   initGoalStepForm();
   initMyWishlistForm();
+  initProfilePage();
 
   window.addEventListener('pageshow', (event) => {
     if (!event.persisted) {

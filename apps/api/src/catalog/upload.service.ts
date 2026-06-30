@@ -11,16 +11,19 @@ export class UploadService implements OnModuleInit {
   readonly uploadRoot: string;
   readonly wishesDir: string;
   readonly goalsDir: string;
+  readonly avatarsDir: string;
 
   constructor() {
     this.uploadRoot = process.env.UPLOAD_DIR || join(process.cwd(), 'uploads');
     this.wishesDir = join(this.uploadRoot, 'wishes');
     this.goalsDir = join(this.uploadRoot, 'goals');
+    this.avatarsDir = join(this.uploadRoot, 'avatars');
   }
 
   onModuleInit(): void {
     mkdirSync(this.wishesDir, { recursive: true });
     mkdirSync(this.goalsDir, { recursive: true });
+    mkdirSync(this.avatarsDir, { recursive: true });
   }
 
   getWishesUploadDir(): string {
@@ -29,6 +32,10 @@ export class UploadService implements OnModuleInit {
 
   getGoalsUploadDir(): string {
     return this.goalsDir;
+  }
+
+  getAvatarsUploadDir(): string {
+    return this.avatarsDir;
   }
 
   getMaxFileSize(): number {
@@ -60,6 +67,10 @@ export class UploadService implements OnModuleInit {
     return `/uploads/goals/${filename}`;
   }
 
+  toPublicAvatarUrl(filename: string): string {
+    return `/uploads/avatars/${filename}`;
+  }
+
   deleteWishImage(imageUrl?: string | null): void {
     if (!imageUrl?.startsWith('/uploads/wishes/')) {
       return;
@@ -77,6 +88,16 @@ export class UploadService implements OnModuleInit {
 
     const filename = basename(imageUrl);
     const fullPath = join(this.goalsDir, filename);
+    this.deletePhysicalFile(fullPath);
+  }
+
+  deleteAvatarImage(imageUrl?: string | null): void {
+    if (!imageUrl?.startsWith('/uploads/avatars/')) {
+      return;
+    }
+
+    const filename = basename(imageUrl);
+    const fullPath = join(this.avatarsDir, filename);
     this.deletePhysicalFile(fullPath);
   }
 
