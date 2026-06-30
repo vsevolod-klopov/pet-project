@@ -19,6 +19,44 @@ body {
   line-height: 1.5;
 }
 
+/* Фон под html, чтобы межстраничная вспышка была в цвет темы, а не белой */
+html {
+  background: #f7f5fb;
+}
+
+/* Плавные переходы между страницами (MPA). Поддерживается в Chrome/Edge/Safari;
+   в остальных браузерах — обычная навигация без ошибок. */
+@view-transition {
+  navigation: auto;
+}
+
+/* Мягкое появление контента при загрузке — фолбэк для браузеров без View Transitions */
+@keyframes app-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.app-shell {
+  animation: app-fade-in 0.22s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-shell {
+    animation: none;
+  }
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation: none !important;
+  }
+}
+
 [hidden] {
   display: none !important;
 }
@@ -64,6 +102,27 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  min-height: 40px;
+}
+
+/* Дорисовка хедера по состоянию страницы.
+   Для авторизованного пользователя не показываем статичный «гостевой» хедер,
+   пока JS не построит меню аккаунта (класс nav-ready ставится после рендера). */
+html.is-authed .app-header .logo {
+  display: none;
+}
+
+html.is-authed .app-header .nav,
+html.is-authed .app-header .menu-toggle,
+html.is-authed .app-header .header-user-menu {
+  opacity: 0;
+}
+
+html.is-authed.nav-ready .app-header .nav,
+html.is-authed.nav-ready .app-header .menu-toggle,
+html.is-authed.nav-ready .app-header .header-user-menu {
+  opacity: 1;
+  transition: opacity 0.25s ease;
 }
 
 .logo {
@@ -1730,21 +1789,44 @@ button {
 }
 
 .goal-carousel-viewport {
+  overflow: hidden;
+  touch-action: pan-y;
+}
+
+.goal-carousel-track {
+  display: flex;
+  transition: transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: transform;
+}
+
+.goal-carousel-slide {
+  flex: 0 0 100%;
+  min-width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 200px;
+  box-sizing: border-box;
   padding: 0.5rem;
+  /* Единый по высоте кадр: картинки разного размера больше не «прыгают» */
+  aspect-ratio: 4 / 3;
+  max-height: min(52vh, 440px);
 }
 
-.goal-carousel-image {
+.goal-carousel-image,
+.goal-carousel-slide img {
   max-width: 100%;
-  max-height: min(52vh, 420px);
+  max-height: 100%;
   width: auto;
   height: auto;
   object-fit: contain;
   display: block;
   margin: 0 auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .goal-carousel-track {
+    transition: none;
+  }
 }
 
 .goal-carousel-btn {

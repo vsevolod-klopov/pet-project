@@ -292,60 +292,98 @@ function mountGoalCarousel(root, images) {
     return;
   }
 
+  const multi = images.length > 1;
+
+  // Разметка строится ОДИН раз: все слайды лежат в «ленте», переключение —
+  // через transform, поэтому картинки не пересоздаются и не мигают.
+  const slidesHtml = images
+    .map(
+      (image) => `
+        <div class="goal-carousel-slide">
+          <img src="${escapeHtml(image.src)}" alt="${escapeHtml(image.alt)}" loading="lazy" decoding="async" draggable="false" />
+        </div>`
+    )
+    .join("");
+
+  const dotsHtml = multi
+    ? `<div class="goal-carousel-dots">${images
+        .map(
+          (_, i) =>
+            `<button type="button" class="goal-carousel-dot${
+              i === 0 ? " is-active" : ""
+            }" data-goal-carousel-dot="${i}" aria-label="Фото ${i + 1}"></button>`
+        )
+        .join("")}</div>`
+    : "";
+
+  root.innerHTML = `
+    <div class="goal-carousel" data-goal-carousel-root>
+      <div class="goal-carousel-viewport" data-goal-carousel-viewport>
+        <div class="goal-carousel-track" data-goal-carousel-track>${slidesHtml}</div>
+      </div>
+      ${
+        multi
+          ? `<button type="button" class="goal-carousel-btn goal-carousel-btn--prev" data-goal-carousel-prev aria-label="Предыдущее фото">‹</button>
+             <button type="button" class="goal-carousel-btn goal-carousel-btn--next" data-goal-carousel-next aria-label="Следующее фото">›</button>`
+          : ""
+      }
+      ${dotsHtml}
+    </div>
+  `;
+
+  if (!multi) return;
+
+  const track = root.querySelector("[data-goal-carousel-track]");
+  const dots = Array.from(root.querySelectorAll("[data-goal-carousel-dot]"));
   let index = 0;
 
-  const render = () => {
-    const image = images[index];
-    root.innerHTML = `
-      <div class="goal-carousel" data-goal-carousel-root>
-        ${
-          images.length > 1
-            ? `<button type="button" class="goal-carousel-btn goal-carousel-btn--prev" data-goal-carousel-prev aria-label="Предыдущее фото">‹</button>`
-            : ""
-        }
-        <div class="goal-carousel-viewport">
-          <img class="goal-carousel-image" src="${escapeHtml(image.src)}" alt="${escapeHtml(image.alt)}" />
-        </div>
-        ${
-          images.length > 1
-            ? `<button type="button" class="goal-carousel-btn goal-carousel-btn--next" data-goal-carousel-next aria-label="Следующее фото">›</button>`
-            : ""
-        }
-        ${
-          images.length > 1
-            ? `<div class="goal-carousel-dots">${images
-                .map(
-                  (_, dotIndex) =>
-                    `<button type="button" class="goal-carousel-dot${
-                      dotIndex === index ? " is-active" : ""
-                    }" data-goal-carousel-dot="${dotIndex}" aria-label="Фото ${dotIndex + 1}"></button>`
-                )
-                .join("")}</div>`
-            : ""
-        }
-      </div>
-    `;
-
-    root.querySelector("[data-goal-carousel-prev]")?.addEventListener("click", (e) => {
-      e.stopPropagation();
-      index = (index - 1 + images.length) % images.length;
-      render();
-    });
-    root.querySelector("[data-goal-carousel-next]")?.addEventListener("click", (e) => {
-      e.stopPropagation();
-      index = (index + 1) % images.length;
-      render();
-    });
-    root.querySelectorAll("[data-goal-carousel-dot]").forEach((dot) => {
-      dot.addEventListener("click", (e) => {
-        e.stopPropagation();
-        index = Number(dot.getAttribute("data-goal-carousel-dot"));
-        render();
-      });
-    });
+  const update = () => {
+    track.style.transform = `translateX(${-index * 100}%)`;
+    dots.forEach((dot, i) => dot.classList.toggle("is-active", i === index));
   };
 
-  render();
+  const goTo = (target) => {
+    index = (target + images.length) % images.length;
+    update();
+  };
+
+  root.querySelector("[data-goal-carousel-prev]")?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    goTo(index - 1);
+  });
+  root.querySelector("[data-goal-carousel-next]")?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    goTo(index + 1);
+  });
+  dots.forEach((dot) => {
+    dot.addEventListener("click", (e) => {
+      e.stopPropagation();
+      goTo(Number(dot.getAttribute("data-goal-carousel-dot")));
+    });
+  });
+
+  // Свайп на сенсорных экранах.
+  const viewport = root.querySelector("[data-goal-carousel-viewport]");
+  let startX = 0;
+  let dragging = false;
+  viewport.addEventListener(
+    "touchstart",
+    (e) => {
+      dragging = true;
+      startX = e.touches[0].clientX;
+    },
+    { passive: true }
+  );
+  viewport.addEventListener("touchend", (e) => {
+    if (!dragging) return;
+    dragging = false;
+    const dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) > 40) {
+      goTo(dx < 0 ? index + 1 : index - 1);
+    }
+  });
+
+  update();
 }
 
 function openModalById(id) {
@@ -1363,6 +1401,8 @@ function initHeaderNav() {
   renderDesktopNav();
   renderMobileNav();
   renderHomeActions();
+  // Хедер построен под актуальное состояние — снимаем предзагрузочное скрытие.
+  document.documentElement.classList.add("nav-ready");
 }
 
 function initModals() {
@@ -2565,9 +2605,14 @@ async function init() {
   initMobileNav();
   initModals();
 
+  // Ранняя гидрация хедера из localStorage — чтобы не висел скрытым во время запроса
+  // и не мигало состояние «гость → пользователь».
+  initHeaderNav();
+
   const needsFreshCatalog =
     typeof pageNeedsFreshCatalog === 'function' && pageNeedsFreshCatalog();
   await ensureAppData({ force: needsFreshCatalog });
+  // Повторный рендер: теперь доступны данные семьи (аватары, раздел «Хотелки семьи»).
   initHeaderNav();
 
   renderGoalsList();
@@ -2592,4 +2637,11 @@ async function init() {
 }
 
 document.addEventListener("DOMContentLoaded", init);
+
+// PWA: регистрируем минимальный service worker (без кэша) — нужен для установки приложения.
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
+  });
+}
 

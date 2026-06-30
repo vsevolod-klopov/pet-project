@@ -3,6 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('auth_access_token');
+          document.documentElement.classList.add(t ? 'is-authed' : 'is-guest');
+        } catch (e) {
+          document.documentElement.classList.add('is-guest');
+        }
+      })();
+    </script>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#ffb6c1" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png" />
     <title>Хотелки · Личный список</title>
     <link rel="stylesheet" href="../assets/css/styles.css" />
   </head>
